@@ -1,0 +1,66 @@
+.login-background {
+  background: url("../../assets/aa.gif") no-repeat center center fixed;
+  background-size: cover;
+}
+
+.login-container {
+  max-width: 900px;
+  height: 550px;
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+input.form-control {
+  border: none;
+  border-bottom: 1px solid #ccc;
+}
+.glassmorphism {
+  background-color: rgba(255, 255, 255, 0.05); /* Càng nhỏ càng trong */
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  height: 100%;
+}
+.login-container {
+  max-width: 900px;
+  width: 100%;
+  background-color: transparent;
+  border-radius: 20px;
+}
+.gradient-text {
+  background: linear-gradient(45deg, #00f0ff, #ff00e0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.border-3d {
+  background: transparent;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6),
+    /* Bóng tối */ -4px -4px 10px rgba(255, 255, 255, 0.1); /* Bóng sáng */
+  backdrop-filter: blur(0px); /* không làm mờ */
+  transition: all 0.3s ease-in-out;
+}
+.glass-left {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: none;
+}
+.glass-left h1 {
+  font-weight: 800;
+  font-size: 2.8rem;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3),
+    0 0 20px rgba(0, 255, 255, 0.4);
+}
+
+.glass-left p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #f8e45c;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}

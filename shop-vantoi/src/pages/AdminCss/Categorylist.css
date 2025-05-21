@@ -1,0 +1,31 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 sản phẩm trên 1 hàng */
+  gap: 20px; /* Khoảng cách giữa các sản phẩm */
+  justify-content: center; /* Căn giữa các sản phẩm */
+}
+
+.img-ca {
+  width: 100%;
+  height: 200px; /* Chiều cao cố định */
+  object-fit: cover; /* Cắt ảnh vừa khung */
+  border-radius: 5px; /* Bo góc nhẹ */
+}
+.card-hover-effect {
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.card-hover-effect img {
+  transition: transform 0.4s ease;
+}
+
+.card-hover-effect:hover img {
+  transform: scale(1.1);
+}

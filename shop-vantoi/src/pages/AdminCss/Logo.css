@@ -1,0 +1,9 @@
+.logo-text {
+  font-family: "Arial", sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Thêm bóng cho chữ */
+}

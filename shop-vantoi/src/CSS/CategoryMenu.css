@@ -1,0 +1,43 @@
+/* Cố định menu dropdown */
+.nav-item.dropdown {
+  position: relative;
+}
+
+/* Dropdown hover hiệu quả */
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* Menu xổ xuống */
+.dropdown-menu.show-on-hover {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  padding: 0.5rem 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Mục danh mục trong menu */
+.dropdown-menu.show-on-hover li {
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+/* Hover đẹp mắt */
+.dropdown-menu.show-on-hover li:hover {
+  background-color: #f1f1f1;
+  color: #007bff;
+  font-weight: 600;
+  border-left: 4px solid #007bff;
+}

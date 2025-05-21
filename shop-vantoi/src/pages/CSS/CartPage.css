@@ -1,0 +1,89 @@
+/* Card sản phẩm */
+.product-card-cart {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product-card-cart:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Input số lượng */
+.quantity-input {
+  width: 60px;
+  text-align: center;
+  border-radius: 8px;
+}
+
+/* Loader custom */
+.custom-loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  margin: auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Light burst bùng sáng nền */
+.light-burst {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.8) 0%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 50%;
+  z-index: 9999;
+  animation: burst-animation 0.8s ease-out forwards;
+}
+
+@keyframes burst-animation {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+/* Định vị và làm to checkbox */
+.card-checkbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  transform: scale(1.5); /* Làm to checkbox */
+  accent-color: #0d6efd; /* Làm màu checkbox xanh nổi bật */
+}
+
+/* Khi hover card thì không ảnh hưởng checkbox */
+.product-card-cart {
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+}
+
+.product-card-cart:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}

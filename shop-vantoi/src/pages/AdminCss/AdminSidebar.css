@@ -1,0 +1,134 @@
+/* Basic layout */
+.admin-layout {
+  display: flex;
+}
+
+.admin-sidebar {
+  width: 250px;
+  background-color: #2e3a46; /* Màu nền xám xanh dịu mắt */
+  color: #f1f1f1;
+  min-height: 100vh;
+  padding: 20px;
+  border-right: 1px solid #39424e; /* Đường viền tinh tế */
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2); /* Bóng cho chiều sâu */
+}
+
+.admin-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f0f4f8; /* Màu nền sáng nhẹ */
+}
+
+/* Sidebar header */
+.admin-sidebar h2 {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #ffffff; /* Chữ trắng nổi bật */
+  text-align: center;
+  border-bottom: 2px solid #4caf50; /* Gạch chân với màu xanh lá */
+  padding-bottom: 10px;
+}
+
+/* Sidebar links */
+.admin-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-sidebar ul li {
+  margin-bottom: 20px;
+}
+
+.admin-sidebar ul li a {
+  color: #d1d5db; /* Màu chữ xám nhạt */
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 12px 15px;
+  border-radius: 6px;
+  display: block;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s;
+}
+
+.admin-sidebar ul li a.active,
+.admin-sidebar ul li a:hover {
+  color: #ffffff; /* Chữ trắng nổi bật */
+  background: linear-gradient(
+    90deg,
+    #4caf50,
+    #2e7d32
+  ); /* Hiệu ứng màu gradient */
+  font-weight: 600; /* Làm đậm chữ */
+  transform: scale(1.05); /* Phóng to nhẹ khi hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Bóng mượt */
+}
+
+.admin-sidebar ul li a.active {
+  background: linear-gradient(90deg, #388e3c, #1b5e20); /* Gradient đậm hơn */
+}
+
+/* Sidebar icons */
+.admin-sidebar ul li a svg {
+  margin-right: 10px;
+  vertical-align: middle;
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.admin-sidebar ul li a:hover svg {
+  transform: rotate(10deg); /* Hiệu ứng xoay biểu tượng khi hover */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+    height: 100vh;
+    top: 0;
+    left: -100%; /* Ẩn sidebar mặc định */
+    transition: left 0.3s ease-in-out;
+  }
+
+  .admin-sidebar.active {
+    left: 0; /* Hiển thị sidebar khi active */
+  }
+
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .admin-content {
+    margin-left: 0;
+  }
+}
+
+/* Toggle button for sidebar */
+.admin-sidebar-toggle {
+  display: none;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: #2e3a46;
+  border: none;
+  color: #f1f1f1;
+  font-size: 1.5rem;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.admin-sidebar-toggle:hover {
+  background-color: #4caf50; /* Màu xanh lá nổi bật */
+  color: #ffffff;
+}
+
+/* Hiển thị nút toggle trên màn hình nhỏ */
+@media (max-width: 768px) {
+  .admin-sidebar-toggle {
+    display: block;
+  }
+}

@@ -1,0 +1,15 @@
+.main-product-image {
+  border-radius: 12px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.main-product-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.quantity-input {
+  border-radius: 8px;
+  text-align: center;
+  padding: 5px 10px;
+}
