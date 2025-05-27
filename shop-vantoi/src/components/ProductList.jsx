@@ -16,7 +16,7 @@ const ProductList = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          `https://shop-vantoi.onrender.com/api/get-products?pageNumber=${pageNumber}&pageSize=${pageSize}`
+          `https://localhost:7022/minimal/api/get-products?pageNumber=${pageNumber}&pageSize=${pageSize}`
         );
         if (!response.ok) {
           const errorMessage = await response.text();
