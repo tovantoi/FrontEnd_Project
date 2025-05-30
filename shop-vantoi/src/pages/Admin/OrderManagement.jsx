@@ -57,11 +57,11 @@ const OrderManagement = () => {
 
   const handleStatusChange = async (id, currentStatus) => {
     const statuses = [
-      { value: 0, label: "Pending" },
-      { value: 1, label: "Accepted" },
-      { value: 2, label: "Shipping" },
-      { value: 3, label: "Successed" },
-      { value: 4, label: "Canceled" },
+      { value: 0, label: "Chờ xác nhận" },
+      { value: 1, label: "Đã xác nhận" },
+      { value: 2, label: "Đang giao hàng" },
+      { value: 3, label: "Đã giao hàng" },
+      { value: 4, label: "Đã hủy" },
     ];
 
     // Tạo dropdown để chọn trạng thái
@@ -152,85 +152,54 @@ const OrderManagement = () => {
       doc.addFont("Roboto.ttf", "Roboto", "normal");
       doc.setFont("Roboto");
 
-      // ===== HEADER =====
-      doc.setFillColor(0, 102, 204);
-      doc.rect(0, 0, 210, 30, "F");
-      doc.setFontSize(18);
-      doc.setTextColor(255, 255, 255);
-      doc.text("🛍️ HÓA ĐƠN MUA HÀNG", 105, 18, null, null, "center");
+      // ===== HEADER với logo & tên shop =====
+      const image = new Image();
+      image.src = "/assets/logo.png"; // ảnh nằm trong public
 
+      image.onload = () => {
+        doc.addImage(image, "PNG", 10, 6, 25, 25);
+        doc.save(`hoa_don_${order.id}.pdf`);
+      };
+
+      image.onerror = () => {
+        console.error("❌ Không thể load ảnh logo.");
+        doc.save(`hoa_don_${order.id}.pdf`);
+      };
+
+      doc.setFillColor(255, 255, 255);
+      doc.rect(0, 0, 210, 35, "F");
+      doc.addImage(image, "PNG", 10, 6, 25, 25);
+      doc.setTextColor(40, 40, 40);
+      doc.setFontSize(16);
+      doc.text("SHOP VANTOI", 40, 14);
       doc.setFontSize(11);
-      doc.text(
-        `Mã đơn hàng: #${orderDetail.id}`,
-        105,
-        26,
-        null,
-        null,
-        "center"
-      );
+      doc.text("Địa chỉ: P5, Đường Quang Đông, Trà Vinh", 40, 20);
+      doc.text("SĐT: 0123-456-789", 40, 26);
 
-      // ===== THÔNG TIN CỬA HÀNG & KHÁCH HÀNG =====
-      const storeX = 14;
-      const customerX = 110;
-      const yStart = 40;
+      doc.setFontSize(18);
+      doc.setTextColor(0, 102, 204);
+      doc.text("HÓA ĐƠN MUA HÀNG", 105, 40, null, null, "center");
 
+      // ===== KHÁCH HÀNG =====
       const fullName = orderDetail.address?.fullName || "N/A";
       const phone = orderDetail.address?.phone || "N/A";
       const finalAddress = orderDetail.address?.finalAddress || "N/A";
+      const yStart = 50;
 
       doc.setFontSize(12);
       doc.setTextColor(0);
-
-      // ➤ Tách dòng thông minh
-      const storeAddress = toUpperNonAccentVietnamese(
-        "DIA CHI: PHUONG 5, DUONG QUANG DONG, TRA VINH"
-      );
-      const storeAddressLines = doc.splitTextToSize(storeAddress, 80);
-
-      const cleanAddress = toUpperNonAccentVietnamese(finalAddress);
-      const splitAddress = doc.splitTextToSize(cleanAddress, 80);
-
-      // ➤ Tính chiều cao block nền xám
-      const maxLines = Math.max(storeAddressLines.length, splitAddress.length);
-      const blockHeight = 30 + (maxLines - 1) * 6;
-
-      doc.setFillColor(245, 245, 245);
-      doc.rect(10, yStart - 6, 190, blockHeight, "F");
-
-      // ➤ In thông tin cửa hàng
       doc.setFont(undefined, "bold");
-      doc.text(toUpperNonAccentVietnamese("FASHION-STORE"), storeX, yStart);
+      doc.text("THÔNG TIN KHÁCH HÀNG", 14, yStart);
       doc.setFont(undefined, "normal");
-      doc.text(toUpperNonAccentVietnamese("SHOP-VANTOI"), storeX, yStart + 6);
-      doc.text(storeAddressLines, storeX, yStart + 12);
-      doc.text(
-        "SDT: 0123-456-789",
-        storeX,
-        yStart + 12 + storeAddressLines.length * 6
-      );
+      doc.text(`Họ tên: ${fullName}`, 14, yStart + 6);
+      doc.text(`SĐT: ${phone}`, 14, yStart + 12);
+      doc.text(`Địa chỉ: ${finalAddress}`, 14, yStart + 18);
 
-      // ➤ In thông tin khách hàng
-      doc.setFont(undefined, "bold");
-      doc.text(toUpperNonAccentVietnamese("KHACH HANG"), customerX, yStart);
-      doc.setFont(undefined, "normal");
-      doc.text(
-        toUpperNonAccentVietnamese(`TEN: ${fullName}`),
-        customerX,
-        yStart + 6
-      );
-      doc.text(
-        toUpperNonAccentVietnamese(`SDT: ${phone}`),
-        customerX,
-        yStart + 12
-      );
-      doc.text(toUpperNonAccentVietnamese("DIA CHI:"), customerX, yStart + 18);
-      doc.text(splitAddress, customerX, yStart + 24);
-
-      // ===== TABLE =====
-      const tableY = yStart + blockHeight + 6;
+      // ===== TABLE SẢN PHẨM =====
+      const tableY = yStart + 28;
       autoTable(doc, {
         startY: tableY,
-        head: [["Sản phẩm", "Số lượng", "Giá", "Tổng"]],
+        head: [["Sản phẩm", "Số lượng", "Đơn giá", "Thành tiền"]],
         body: (orderDetail.orderItems || []).map((item) => {
           const name =
             item.product?.productName ?? item.productName ?? "Không rõ";
@@ -248,54 +217,43 @@ const OrderManagement = () => {
         styles: {
           font: "Roboto",
           fontSize: 11,
-          cellPadding: 4,
+          cellPadding: 5,
           halign: "center",
         },
         headStyles: {
-          fillColor: [0, 102, 204],
+          fillColor: [41, 128, 185],
           textColor: 255,
           fontStyle: "bold",
         },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245],
+        },
       });
 
-      // ===== TOTAL + NGÀY IN =====
+      // ===== TỔNG & NGÀY IN =====
       const finalY = doc.lastAutoTable.finalY + 10;
-      doc.setFontSize(12);
       doc.setFont(undefined, "bold");
-      doc.setTextColor(33, 37, 41);
+      doc.setTextColor(0);
       doc.text(
-        toUpperNonAccentVietnamese(
-          `TONG TIEN: ${orderDetail.totalPrice.toLocaleString()} VND`
-        ),
+        `TỔNG TIỀN: ${orderDetail.totalPrice.toLocaleString()} VND`,
         14,
         finalY
       );
       doc.setFont(undefined, "normal");
       doc.text(
-        toUpperNonAccentVietnamese(
-          `NGAY IN: ${new Date().toLocaleDateString("vi-VN")}`
-        ),
+        `Ngày in: ${new Date().toLocaleDateString("vi-VN")}`,
         14,
         finalY + 6
       );
 
-      // ===== DẤU MỘC & KÝ TÊN =====
-      const logoImg = "/assets/red-stamp.png";
-      const image = new Image();
-      image.src = logoImg;
+      // ===== CHỮ KÝ =====
+      doc.setFont(undefined, "bold");
+      doc.text("Người lập hóa đơn", 160, finalY);
+      doc.setFont(undefined, "normal");
+      doc.line(150, finalY + 20, 190, finalY + 20);
+      doc.text("TO VAN TOI", 160, finalY + 26);
 
-      image.onload = () => {
-        doc.addImage(image, "PNG", 145, finalY + 10, 40, 40);
-        doc.setFontSize(12);
-        doc.setFont(undefined, "bold");
-        doc.text(toUpperNonAccentVietnamese("TO VAN TOI"), 160, finalY + 58);
-        doc.line(150, finalY + 62, 190, finalY + 62);
-        doc.save(`don_hang_${order.id}.pdf`);
-      };
-
-      image.onerror = () => {
-        doc.save(`don_hang_${order.id}.pdf`);
-      };
+      doc.save(`hoa_don_${order.id}.pdf`);
     } catch (err) {
       Swal.fire({
         title: "Lỗi!",
@@ -314,71 +272,66 @@ const OrderManagement = () => {
     const orderDetail = data[0];
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("HOA_DON");
-
-    const fullName = orderDetail.address?.fullName || "N/A";
-    const phone = orderDetail.address?.phone || "N/A";
-    const finalAddress = orderDetail.address?.finalAddress || "N/A";
+    const sheet = workbook.addWorksheet("HOA_DON");
 
     // ===== HEADER =====
-    worksheet.mergeCells("A1", "E1");
-    const headerCell = worksheet.getCell("A1");
-    headerCell.value = "🛍️ HÓA ĐƠN MUA HÀNG";
+    sheet.mergeCells("A1", "D1");
+    const headerCell = sheet.getCell("A1");
+    headerCell.value = "🛍️ HÓA ĐƠN MUA HÀNG - SHOP VANTOI";
     headerCell.font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
     headerCell.fill = {
       type: "pattern",
       pattern: "solid",
-      fgColor: { argb: "FF1F4E78" },
+      fgColor: { argb: "FF2E86C1" },
     };
     headerCell.alignment = { horizontal: "center" };
 
-    // ===== THÔNG TIN CỬA HÀNG & KHÁCH HÀNG =====
-    worksheet.getCell("A3").value = "SHOP-VANTOI";
-    worksheet.getCell("A4").value =
-      "ĐỊA CHỈ: PHƯỜNG 5, ĐƯỜNG QUANG ĐÔNG, TRÀ VINH";
-    worksheet.getCell("A5").value = "SDT: 0123-456-789";
+    // ===== THÔNG TIN KH =====
+    const fullName = orderDetail.address?.fullName || "N/A";
+    const phone = orderDetail.address?.phone || "N/A";
+    const finalAddress = orderDetail.address?.finalAddress || "N/A";
 
-    worksheet.getCell("D3").value = "KHÁCH HÀNG";
-    worksheet.getCell("D4").value = `TÊN: ${fullName}`;
-    worksheet.getCell("D5").value = `SDT: ${phone}`;
-    worksheet.getCell("D6").value = `ĐỊA CHỈ: ${finalAddress}`;
+    sheet.addRow([]);
+    sheet.addRow(["Tên KH:", fullName, "SĐT:", phone]);
+    sheet.addRow(["Địa chỉ:", finalAddress]);
+    sheet.addRow([]);
 
     // ===== BẢNG SẢN PHẨM =====
-    worksheet.addRow([]);
-    worksheet.addRow(["SẢN PHẨM", "SỐ LƯỢNG", "GIÁ", "TỔNG"]);
-
-    const tableHeaderRow = worksheet.getRow(8);
-    tableHeaderRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
-    tableHeaderRow.fill = {
+    sheet.addRow(["Sản phẩm", "Số lượng", "Đơn giá", "Thành tiền"]);
+    const headerRow = sheet.getRow(sheet.lastRow.number);
+    headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    headerRow.fill = {
       type: "pattern",
       pattern: "solid",
-      fgColor: { argb: "FF1F4E78" },
+      fgColor: { argb: "FF2E86C1" },
     };
-    tableHeaderRow.alignment = { horizontal: "center" };
 
-    for (const item of orderDetail.orderItems) {
+    (orderDetail.orderItems || []).forEach((item) => {
       const name = item.product?.productName ?? item.productName ?? "Không rõ";
       const quantity = item.quantity || 0;
       const price = item.product?.discountPrice ?? item.discountPrice ?? 0;
       const total = quantity * price;
-      worksheet.addRow([
+      sheet.addRow([
         name,
         quantity,
         `${price.toLocaleString()} VND`,
         `${total.toLocaleString()} VND`,
       ]);
-    }
+    });
 
-    // ===== TỔNG TIỀN & NGÀY IN =====
-    const finalRow = worksheet.lastRow.number + 2;
-    worksheet.getCell(
-      `A${finalRow}`
-    ).value = `TỔNG TIỀN: ${orderDetail.totalPrice.toLocaleString()} VND`;
-    worksheet.getCell(`A${finalRow}`).font = { bold: true };
-    worksheet.getCell(
-      `D${finalRow}`
-    ).value = `NGÀY IN: ${new Date().toLocaleDateString("vi-VN")}`;
-    worksheet.getCell(`D${finalRow}`).font = { bold: true };
+    // ===== TỔNG & NGÀY =====
+    sheet.addRow([]);
+    const totalRow = sheet.addRow([
+      `TỔNG TIỀN: ${orderDetail.totalPrice.toLocaleString()} VND`,
+    ]);
+    totalRow.font = { bold: true };
+    sheet.mergeCells(`A${totalRow.number}:D${totalRow.number}`);
+
+    const dateRow = sheet.addRow([
+      `NGÀY IN: ${new Date().toLocaleDateString("vi-VN")}`,
+    ]);
+    sheet.mergeCells(`A${dateRow.number}:D${dateRow.number}`);
+    dateRow.font = { italic: true };
 
     // ===== EXPORT FILE =====
     const buffer = await workbook.xlsx.writeBuffer();

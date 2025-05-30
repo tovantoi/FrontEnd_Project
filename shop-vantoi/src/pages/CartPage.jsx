@@ -235,12 +235,12 @@ const CartPage = ({ cart, setCart }) => {
                     <h5 className="card-title">{item.productName}</h5>
 
                     {/* Thêm màu sắc và kích cỡ */}
-                    <p className="text-muted small mb-1">
+                    {/* <p className="text-muted small mb-1">
                       Màu:{" "}
                       <span className="fw-semibold">
                         {item.selectedColor || "Không có"}
                       </span>
-                    </p>
+                    </p> */}
                     <p className="text-muted small mb-2">
                       Kích cỡ:{" "}
                       <span className="fw-semibold">

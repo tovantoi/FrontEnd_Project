@@ -190,6 +190,40 @@ const CheckoutPage = ({ cart, setCart }) => {
       );
     }, 250);
   };
+  const sendOrderEmailToCustomer = async (
+    user,
+    cart,
+    totalPrice,
+    orderCode
+  ) => {
+    try {
+      const response = await fetch(
+        "https://localhost:7022/minimal/api/send-order-email",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: user.email,
+            customerName: user.fullName || `${user.lastName} ${user.firstName}`,
+            orderCode: orderCode || `OD${new Date().getTime()}`,
+            totalPrice: totalPrice,
+            orderItems: cart.map((item) => ({
+              productName: item.productName,
+              quantity: item.quantity,
+              price: (item.discountPrice || item.regularPrice) * item.quantity,
+            })),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.warn("Gửi email thất bại:", data.message || "Lỗi không rõ");
+      }
+    } catch (err) {
+      console.error("Lỗi khi gửi email:", err);
+    }
+  };
 
   // Hàm Light Burst
   const fireLightBurst = () => {
@@ -308,6 +342,13 @@ const CheckoutPage = ({ cart, setCart }) => {
           setCart([]);
           localStorage.removeItem("buyNowProduct");
           localStorage.removeItem("selectedProducts");
+
+          sendOrderEmailToCustomer(
+            user,
+            cart,
+            totalPrice,
+            `OD${createdOrderId}`
+          );
           navigate("/my-orders");
         }, 2500);
       }, 1500);

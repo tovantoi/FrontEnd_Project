@@ -321,9 +321,9 @@ const CategorySearch = () => {
         </motion.h2>
         <div className="row g-4">
           {[
-            { src: "/assets/3.png", link: "/fashion-corner-1" },
-            { src: "/assets/2.png", link: "/fashion-corner-2" },
-            { src: "/assets/1.png", link: "/fashion-corner-3" },
+            { src: "/assets/3.jpg", link: "/fashion-corner-1" },
+            { src: "/assets/2.jpg", link: "/fashion-corner-2" },
+            { src: "/assets/1.jpg", link: "/fashion-corner-3" },
           ].map((item, idx) => (
             <div className="col-12 col-md-4" key={idx}>
               <motion.div

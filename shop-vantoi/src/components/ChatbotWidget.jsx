@@ -11,19 +11,22 @@ const ChatbotWidget = () => {
     setIsOpen((prev) => {
       if (!prev && messages.length === 0) {
         setMessages([
-          { sender: "bot", text: "Chào mừng quý khách đã đến với Shop VanToi." },        
+          {
+            sender: "bot",
+            text: "Chào mừng quý khách đã đến với Shop VanToi.",
+          },
         ]);
       }
       return !prev;
     });
-  };  
+  };
   const sendMessage = async () => {
     if (!userInput.trim()) return;
 
     setMessages((prev) => [...prev, { sender: "user", text: userInput }]);
 
     try {
-      const res = await fetch("http://localhost:5000/api/chat", {
+      const res = await fetch("http://localhost:5050/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userInput }),

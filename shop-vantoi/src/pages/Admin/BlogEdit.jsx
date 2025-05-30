@@ -28,16 +28,16 @@ const BlogEdit = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e, fieldName) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result.split(",")[1]; // Lấy phần base64 sau dấu phẩy
+        const base64String = reader.result.split(",")[1];
         setFormData((prevState) => ({
           ...prevState,
-          imageData: base64String,
-          imageMimeType: file.type, // Lưu thêm mimeType
+          [fieldName]: base64String,
+          [`${fieldName}MimeType`]: file.type, // nếu bạn cần lưu thêm mimeType
         }));
       };
       reader.readAsDataURL(file);

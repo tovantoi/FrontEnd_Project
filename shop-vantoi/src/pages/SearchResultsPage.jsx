@@ -1,72 +1,72 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+// pages/SearchResults.jsx
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import ProductCard from "../components/ProductCard";
 import { motion } from "framer-motion";
+import "./CSS/Search.css";
 
-const SearchResultsPage = () => {
+const SearchResults = () => {
   const location = useLocation();
-  const navigate = useNavigate(); // Hook để điều hướng
-  const { results = [], query } = location.state || {};
+  const { results = [], query = "" } = location.state || {};
+  const [productRatings, setProductRatings] = useState({});
 
-  const handleProductClick = (productId) => {
-    navigate(`/product/${productId}`); // Điều hướng tới trang chi tiết sản phẩm
-  };
+  useEffect(() => {
+    const fetchRatings = async () => {
+      const ratings = {};
+      await Promise.all(
+        results.map(async (product) => {
+          try {
+            const res = await fetch(
+              `https://localhost:7022/minimal/api/get-product-cmt-start?id=${product.id}`
+            );
+            if (res.ok) {
+              const data = await res.json();
+              ratings[product.id] = {
+                totalReviews: data.totalReviews,
+                averageRating: data.averageRating,
+                totalSold: data.totalSold,
+              };
+            }
+          } catch {
+            ratings[product.id] = null;
+          }
+        })
+      );
+      setProductRatings(ratings);
+    };
+
+    if (results.length > 0) fetchRatings();
+  }, [results]);
 
   return (
-    <div className="search-results container py-4">
+    <div className="container py-5">
       <motion.h2
-        className="text-center mb-4"
-        initial={{ opacity: 0, scale: 0.8, y: -30 }} // Bắt đầu mờ, nhỏ và di chuyển từ trên xuống
-        animate={{ opacity: 1, scale: 1, y: 0 }} // Hiển thị rõ, kích thước bình thường và đúng vị trí
-        transition={{
-          duration: 1.2, // Thời gian thực hiện hiệu ứng
-          ease: "easeOut", // Làm mềm hiệu ứng
-        }}
-        whileHover={{
-          scale: 1.1, // Phóng to nhẹ khi hover
-          textShadow: "0px 0px 10px rgba(255, 255, 255, 0.8)", // Ánh sáng khi hover
-          color: "#e91e63", // Đổi màu chữ khi hover
-        }}
-        style={{
-          color: "#1e88e5", // Màu mặc định của tiêu đề
-          fontWeight: "bold",
-        }}
+        className="search-heading text-center mb-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
       >
-        Kết quả tìm kiếm cho: "{query}"
+        Kết quả tìm kiếm cho: <span className="highlight-query">"{query}"</span>
       </motion.h2>
-      {results.length === 0 ? (
-        <p className="text-center">Không tìm thấy sản phẩm nào phù hợp.</p>
-      ) : (
-        <div className="row">
-          {results.map((product) => (
-            <div
-              className="col-md-3 mb-4"
+
+      {results.length > 0 ? (
+        <div className="row g-4">
+          {results.map((product, index) => (
+            <ProductCard
               key={product.id}
-              onClick={() => handleProductClick(product.id)} // Thêm sự kiện click
-              style={{ cursor: "pointer" }} // Thêm style để hiển thị con trỏ tay
-            >
-              <div className="card h-100">
-                <img
-                  src={
-                    product.imagePath && product.imagePath.trim() !== ""
-                      ? product.imagePath
-                      : "https://via.placeholder.com/400"
-                  }
-                  className="card-img-top"
-                  alt={product.productName}
-                />
-                <div className="card-body">
-                  <h5 className="card-title">{product.productName}</h5>
-                  <p className="card-text text-primary">
-                    Giá: {product.discountPrice || product.regularPrice} VND
-                  </p>
-                </div>
-              </div>
-            </div>
+              product={product}
+              ratingData={productRatings[product.id]}
+              index={index}
+            />
           ))}
+        </div>
+      ) : (
+        <div className="alert alert-warning text-center">
+          Không tìm thấy sản phẩm nào phù hợp.
         </div>
       )}
     </div>
   );
 };
 
-export default SearchResultsPage;
+export default SearchResults;

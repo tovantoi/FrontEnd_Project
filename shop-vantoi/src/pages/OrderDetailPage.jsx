@@ -111,7 +111,7 @@ const OrderDetailPage = () => {
             }}
           >
             <center>
-              <p>Chi tiết đơn hàng</p>
+              <p>CHI TIẾT ĐƠN HÀNG</p>
             </center>
           </motion.h1>
           <hr />

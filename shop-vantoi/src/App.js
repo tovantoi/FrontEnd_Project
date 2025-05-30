@@ -67,6 +67,7 @@ import FashionTip3 from "./home-content/FashionTip3";
 import FashionCorner1 from "./home-content/FashionCorner1";
 import FashionCorner2 from "./home-content/FashionCorner2";
 import FashionCorner3 from "./home-content/FashionCorner3";
+import ChatbotWidget from "./components/ChatbotWidget";
 import {
   Chart,
   CategoryScale,
@@ -118,6 +119,24 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
     "/fashion-corner-3",
     "/category/:categoryId",
   ];
+const user = JSON.parse(localStorage.getItem("user"));
+const visibleChatbotPaths = [
+  "/",
+  "/products",
+  "/blogpage",
+  "/contact",
+  "/faq",
+  "/about",
+  "/about-us",
+  "/stores",
+  "/phukien",
+];
+const shouldShowChatbot =
+  user &&
+  visibleChatbotPaths.some((path) =>
+    new RegExp(`^${path.replace(/:[^/]+/g, "[^/]+")}$`).test(location.pathname)
+  );
+
   const isNotFound = !definedRoutes.some((route) =>
     new RegExp(`^${route.replace(/:[^/]+/g, "[^/]+")}$`).test(location.pathname)
   );
@@ -134,7 +153,7 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
 
   return (
     <div>
-      <FallingEffect count={25} imageUrl="/assets/ngoisao.ico" />
+      {/* <FallingEffect count={25} imageUrl="/assets/ngoisao.ico" /> */}
       {!isAdminRoute && !isNotFound && <Header cart={cart} />}{" "}
       {/* Hiển thị Header nếu không phải admin */}
       <Routes>
@@ -242,8 +261,12 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
           />
         </Route>
       </Routes>
-      {!isAdminRoute && !isNotFound && <Footer />}{" "}
-      {/* Hiển thị Footer nếu không phải admin */}
+      {!isAdminRoute && !isNotFound && <Footer />}
+      {visibleChatbotPaths.some((path) =>
+        new RegExp(`^${path.replace(/:[^/]+/g, "[^/]+")}$`).test(
+          location.pathname
+        )
+      ) && <ChatbotWidget />}
     </div>
   );
 };

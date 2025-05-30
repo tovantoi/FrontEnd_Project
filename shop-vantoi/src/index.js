@@ -23,7 +23,7 @@ root.render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={clientId}>
       <App />
-      <ChatbotWidget />
+      {/* <ChatbotWidget /> */}
     </GoogleOAuthProvider>
   </React.StrictMode>
 );

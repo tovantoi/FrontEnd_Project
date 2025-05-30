@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import { FaSearch, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import "../CSS/CategoryMenu.css";
-
+import "../CSS/SearchSuggestions.css";
 const Header = ({ cart }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,6 +13,7 @@ const Header = ({ cart }) => {
   const [categories, setCategories] = useState([]);
   const [user, setUser] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     const swalInstance = Swal.fire({
@@ -54,6 +55,33 @@ const Header = ({ cart }) => {
       window.removeEventListener("storage", loadUser);
     };
   }, []);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(async () => {
+      if (searchQuery.trim()) {
+        try {
+          const res = await fetch(
+            `https://localhost:7022/minimal/api/get-name-product?productname=${encodeURIComponent(
+              searchQuery
+            )}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            setSuggestions(data);
+          } else {
+            setSuggestions([]);
+          }
+        } catch {
+          setSuggestions([]);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    }, 300); // Chờ 300ms sau mỗi lần gõ
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery]);
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -179,30 +207,28 @@ const Header = ({ cart }) => {
     <header className="bg-white shadow-sm sticky-top">
       <div className="container d-flex justify-content-between align-items-center py-3">
         {/* Logo */}
-        <div className="d-flex align-items-center">
+        <div
+          className="d-flex align-items-center gap-3 logo-wrap"
+          style={{ minHeight: "60px" }}
+        >
           <Link
             to="/"
             className="d-flex align-items-center text-decoration-none"
+            style={{ lineHeight: 1 }}
           >
             <motion.img
               src="/assets/logoo.png"
               alt="Logo"
-              style={{ height: 50, borderRadius: 10 }}
-              initial={{ opacity: 0, rotate: -15 }}
-              animate={{ opacity: 1, rotate: 0 }}
+              className="shop-logo-img"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
               whileHover={{ scale: 1.1 }}
             />
             <motion.span
-              className="ms-2 fw-bold fs-4"
-              style={{
-                background:
-                  "linear-gradient(to right, #ff6ec7, #f9d423, #1e90ff)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              className="shop-logo-text ms-2"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
               SHOP VANTOI
@@ -262,20 +288,44 @@ const Header = ({ cart }) => {
 
         {/* Search + Account + Cart */}
         <div className="d-flex align-items-center">
-          <div className="input-group me-3">
-            <input
-              type="text"
-              className={`form-control ${error ? "is-invalid" : ""}`}
-              placeholder="Tìm kiếm..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
-            <button className="btn btn-outline-primary" onClick={handleSearch}>
-              <FaSearch />
-            </button>
-          </div>
+          <div className="position-relative me-3" style={{ width: "250px" }}>
+            <div className="input-group">
+              <input
+                type="text"
+                className={`form-control ${error ? "is-invalid" : ""}`}
+                placeholder="Tìm kiếm..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                onBlur={() => setTimeout(() => setSuggestions([]), 200)}
+              />
+              <button
+                className="btn btn-outline-primary"
+                onClick={handleSearch}
+              >
+                <FaSearch />
+              </button>
+            </div>
 
+            {suggestions.length > 0 && (
+              <div className="suggestions-container">
+                {suggestions.map((item) => (
+                  <div
+                    key={item.id}
+                    className="suggestion-item"
+                    onClick={() => navigate(`/product/${item.id}`)}
+                  >
+                    <img
+                      src={item.imagePath || "https://via.placeholder.com/40"}
+                      alt={item.productName}
+                      className="suggestion-image"
+                    />
+                    <span className="suggestion-name">{item.productName}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div
             className="position-relative me-3"
             onMouseEnter={() => setIsDropdownOpen(true)}

@@ -1,0 +1,16 @@
+.search-heading {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.highlight-query {
+  color: #007bff;
+  background: #e9f3ff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-style: italic;
+  box-shadow: 0 1px 3px rgba(0, 123, 255, 0.2);
+}

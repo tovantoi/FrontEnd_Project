@@ -124,7 +124,7 @@ const OrderManagementPage = () => {
             }}
           >
             <center>
-              <p>Đơn hàng của bạn</p>
+              <p>ĐƠN HÀNG CỦA BẠN</p>
             </center>
           </motion.h1>
 

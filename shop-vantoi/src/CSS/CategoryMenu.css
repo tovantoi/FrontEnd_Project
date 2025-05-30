@@ -3,24 +3,16 @@
   position: relative;
 }
 
-/* Dropdown hover hiệu quả */
-.nav-item.dropdown:hover .dropdown-menu {
-  display: block;
-}
-
-/* Menu xổ xuống */
-.dropdown-menu.show-on-hover {
-  display: none;
+.nav-item.dropdown .dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
-  min-width: 180px;
-  background-color: #fff;
-  border-radius: 6px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 999;
-  padding: 0.5rem 0;
-  transition: opacity 0.3s ease;
+  display: none;
+  z-index: 1000;
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
 }
 
 /* Mục danh mục trong menu */
@@ -40,4 +32,73 @@
   color: #007bff;
   font-weight: 600;
   border-left: 4px solid #007bff;
+}
+/* Tăng padding menu, căn giữa menu đẹp hơn */
+header .nav .nav-item .nav-link {
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  font-size: 16px;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+header .nav .nav-item .nav-link:hover,
+header .nav .nav-item .nav-link.active {
+  color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 8px;
+}
+
+/* Dropdown hover hiển thị */
+header .nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0.5rem;
+}
+
+header .dropdown-menu.show-on-hover {
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+header .dropdown-menu.show-on-hover li {
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+header .dropdown-menu.show-on-hover li:hover {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+header .nav .nav-link {
+  position: relative;
+}
+
+header .nav .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background-color: #007bff;
+  transition: 0.3s ease-in-out;
+}
+
+header .nav .nav-link:hover::after,
+header .nav .nav-link.active::after {
+  width: 100%;
 }
