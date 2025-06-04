@@ -1,15 +1,71 @@
-.main-product-image {
+/* BlogDetail.css */
+.blog-detail-container {
+  max-width: 1140px; /* hoặc 100%, hoặc 90vw nếu muốn full hơn */
+  margin: auto;
+  padding: 2rem 1rem;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.blog-title {
+  font-size: 2rem;
+  color: #212529;
+}
+
+.blog-description {
+  font-style: italic;
+  font-size: 1.05rem;
+  color: #555;
+}
+
+.blog-image {
+  max-height: 350px;
+  object-fit: cover;
   border-radius: 12px;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-.main-product-image:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+.blog-video {
+  max-height: 300px;
+  margin-top: 1rem;
+  border-radius: 12px;
 }
 
-.quantity-input {
+.blog-content {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3 {
+  margin-top: 1.5rem;
+  font-weight: bold;
+  color: #111;
+}
+
+.blog-content p {
+  margin-bottom: 1rem;
+}
+
+.blog-content img {
+  max-width: 100%;
   border-radius: 8px;
-  text-align: center;
-  padding: 5px 10px;
+  margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+  .blog-detail-container {
+    padding: 1rem;
+  }
+
+  .blog-image {
+    max-height: 250px;
+  }
+}
+@media (min-width: 1400px) {
+  .blog-detail-container {
+    max-width: 1280px;
+  }
 }

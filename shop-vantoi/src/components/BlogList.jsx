@@ -4,9 +4,9 @@ import "../CSS/BlogList.css";
 
 const BlogList = ({ blogs, onSelect }) => {
   return (
-    <div className="container py-5">
+    <div className="container py-5 blog-list-container">
       <motion.h1
-        className="product-name-title mb-3"
+        className="product-name-title mb-4 text-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -15,10 +15,9 @@ const BlogList = ({ blogs, onSelect }) => {
           textShadow: "0px 2px 10px rgba(0, 0, 0, 0.2)",
         }}
       >
-        <center>
-          <p>PHONG CÁCH THỜI TRANG</p>
-        </center>
+        PHONG CÁCH THỜI TRANG
       </motion.h1>
+
       <div className="row g-4">
         {blogs.map((blog) => (
           <motion.div

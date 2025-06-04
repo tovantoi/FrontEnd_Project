@@ -16,17 +16,17 @@ const OrderDetail = () => {
   const getStatusLabel = (status) => {
     switch (status) {
       case 0:
-        return { label: "Pending", color: "text-warning" };
+        return { label: "Chờ xác nhận", color: "bg-warning text-dark" };
       case 1:
-        return { label: "Accepted", color: "text-primary" };
+        return { label: "Đã xác nhận", color: "bg-primary text-white" };
       case 2:
-        return { label: "Shipping", color: "text-info" };
+        return { label: "Đang giao hàng", color: "bg-info text-dark" };
       case 3:
-        return { label: "Successed", color: "text-success" };
+        return { label: "Hoàn tất", color: "bg-success text-white" };
       case 4:
-        return { label: "Canceled", color: "text-danger" };
+        return { label: "Đã huỷ", color: "bg-danger text-white" };
       default:
-        return { label: "Unknown Status", color: "text-muted" };
+        return { label: "Không rõ", color: "bg-secondary text-white" };
     }
   };
 
@@ -45,7 +45,7 @@ const OrderDetail = () => {
     }
   };
 
-  if (loading) return <div className="text-center">Đang tải...</div>;
+  if (loading) return <div className="text-center py-5">Đang tải...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!order)
     return <div className="alert alert-warning">Không có đơn hàng.</div>;
@@ -55,62 +55,59 @@ const OrderDetail = () => {
   return (
     <div className="container my-4">
       <motion.h1
-        className="product-name-title mb-3"
+        className="text-center mb-4 fw-bold"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        whileHover={{
-          scale: 1.05,
-          textShadow: "0px 2px 10px rgba(0, 0, 0, 0.2)",
-        }}
       >
-        <center>
-          <p>CHI TIẾT ĐƠN HÀNG</p>
-        </center>
+        CHI TIẾT ĐƠN HÀNG
       </motion.h1>
 
       <motion.button
-        className="btn btn-secondary mb-3"
+        className="btn btn-outline-secondary mb-3"
         onClick={() => navigate("/admin/order")}
+        whileHover={{ scale: 1.05 }}
       >
-        ← Quay lại
+        ← Quay lại danh sách
       </motion.button>
 
-      <div className="card mb-4">
+      <div className="card shadow-sm rounded-4">
         <div className="card-body">
-          <h5>Thông tin đơn hàng</h5>
-          <p>
-            <strong>Mã đơn:</strong> {order.id}
-          </p>
-          <p>
-            <strong>Email:</strong> {order.email}
-          </p>
-          <p>
-            <strong>Tổng tiền:</strong> {order.totalPrice.toLocaleString()} VND
-          </p>
-          <p>
-            <strong>Trạng thái:</strong> <span className={color}>{label}</span>
-          </p>
-
-          {order.address && (
-            <>
-              <h5>Thông tin người nhận</h5>
+          <h4 className="mb-3">Thông tin đơn hàng</h4>
+          <div className="row">
+            <div className="col-md-6">
               <p>
-                <strong>Họ tên:</strong> {order.address.fullName}
+                <strong>Mã đơn:</strong> OD{id}
               </p>
               <p>
-                <strong>SĐT:</strong> {order.address.phone}
+                <strong>Email khách hàng:</strong> {order.email}
               </p>
               <p>
-                <strong>Địa chỉ:</strong> {order.address.finalAddress}
+                <strong>Trạng thái:</strong>{" "}
+                <span className={`badge ${color} px-3 py-2`}>{label}</span>
               </p>
-            </>
-          )}
+            </div>
+            <div className="col-md-6">
+              {order.address && (
+                <>
+                  <p>
+                    <strong>Người nhận:</strong> {order.address.fullName}
+                  </p>
+                  <p>
+                    <strong>SĐT:</strong> {order.address.phone}
+                  </p>
+                  <p>
+                    <strong>Địa chỉ:</strong> {order.address.finalAddress}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
 
           {order.orderItems?.length > 0 && (
             <>
-              <h5 className="mt-4">Danh sách sản phẩm</h5>
-              <ul className="list-group">
+              <h4 className="mt-4">Danh sách sản phẩm</h4>
+              <ul className="list-group mb-3">
                 {order.orderItems.map((item, index) => {
                   const price = item.discountPrice ?? 0;
                   const total = item.quantity * price;
@@ -141,9 +138,6 @@ const OrderDetail = () => {
                         <p className="mb-0">
                           Đơn giá: {price.toLocaleString()} VND
                         </p>
-                        <p className="mb-0">
-                          Thành tiền: {total.toLocaleString()} VND
-                        </p>
                       </div>
                     </li>
                   );
@@ -151,6 +145,40 @@ const OrderDetail = () => {
               </ul>
             </>
           )}
+
+          <div className="mt-4 p-3 border rounded shadow-sm bg-light">
+            <h5 className="mb-3 text-dark">Tổng kết thanh toán</h5>
+            <div className="d-flex justify-content-between">
+              <span className="fw-semibold">Thành tiền (chưa giảm):</span>
+              <span>
+                {(
+                  order.totalPrice +
+                  (order.coupon?.discount
+                    ? parseFloat(order.coupon.discount)
+                    : 0)
+                ).toLocaleString()}{" "}
+                VND
+              </span>
+            </div>
+
+            {order.coupon && (
+              <div className="d-flex justify-content-between text-success">
+                <span className="fw-semibold">
+                  Mã giảm giá ({order.coupon.code}):
+                </span>
+                <span>
+                  -{parseFloat(order.coupon.discount).toLocaleString()} VND
+                </span>
+              </div>
+            )}
+
+            <hr className="my-2" />
+
+            <div className="d-flex justify-content-between fs-5 fw-bold text-primary">
+              <span>Tổng tiền phải trả:</span>
+              <span>{order.totalPrice.toLocaleString()} VND</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,112 @@
+/* Tạo cảm giác đều và hiện đại hơn cho menu */
+.nav {
+  gap: 1rem;
+}
+
+.nav .nav-item {
+  position: relative;
+}
+
+.nav .nav-link {
+  font-weight: 500;
+  color: #212529;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.25s ease-in-out;
+  border-radius: 8px;
+}
+
+.nav .nav-link:hover {
+  background-color: #f8f9fa;
+  color: #0d6efd;
+}
+
+.nav .nav-link.active {
+  background-color: #e7f1ff;
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+/* Gạch dưới mượt hơn cho item đang active */
+.nav .nav-link.active::after {
+  content: "";
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background-color: #0d6efd;
+  bottom: -4px;
+  left: 0;
+  border-radius: 2px;
+}
+.custom-scroll-dropdown {
+  scrollbar-width: thin;
+  scrollbar-color: #999 transparent;
+}
+
+/* Webkit scroll (Chrome, Edge) */
+.custom-scroll-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scroll-dropdown::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+}
+
+.custom-scroll-dropdown::-webkit-scrollbar-thumb:hover {
+  background-color: #888;
+}
+
+.custom-scroll-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+.custom-scroll-dropdown {
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 6px 0;
+  background-color: #fff;
+  font-size: 15px;
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Ẩn scrollbar mặc định */
+.custom-scroll-dropdown::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Hiện scrollbar khi hover menu */
+.custom-scroll-dropdown:hover::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scroll-dropdown:hover::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+.custom-scroll-dropdown li {
+  padding: 0;
+}
+
+/* Mỗi mục danh mục */
+.custom-scroll-dropdown .dropdown-item {
+  padding: 10px 16px;
+  transition: background 0.2s, padding-left 0.2s;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Hover mềm mại */
+.custom-scroll-dropdown .dropdown-item:hover {
+  background-color: #f0f2f5;
+  padding-left: 20px;
+  color: #007bff;
+}

@@ -28,6 +28,8 @@ const CheckoutPage = ({ cart, setCart }) => {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [useNewAddress, setUseNewAddress] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [rocketAnimation, setRocketAnimation] = useState(false);
@@ -140,14 +142,6 @@ const CheckoutPage = ({ cart, setCart }) => {
     }
   };
 
-  const shippingFee = 30;
-  const totalProductPrice = cart.reduce(
-    (total, item) =>
-      total + (item.discountPrice || item.regularPrice) * item.quantity,
-    0
-  );
-  const totalPrice = totalProductPrice + shippingFee;
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -190,13 +184,39 @@ const CheckoutPage = ({ cart, setCart }) => {
       );
     }, 250);
   };
+  // CheckoutPage.jsx - phần xử lý gửi email đơn hàng hoàn chỉnh
+
+  const shippingFee = 30000;
+  const totalProductPrice = cart.reduce(
+    (total, item) =>
+      total + (item.discountPrice || item.regularPrice) * item.quantity,
+    0
+  );
+  const totalPrice = Math.max(
+    totalProductPrice + shippingFee - discountAmount,
+    0
+  );
+
   const sendOrderEmailToCustomer = async (
     user,
     cart,
-    totalPrice,
-    orderCode
+    orderCode,
+    couponCode = null,
+    discountAmount = 0
   ) => {
     try {
+      const shippingFee = 30000;
+
+      const totalProductPrice = cart.reduce(
+        (total, item) =>
+          total +
+          (item.discountPrice || item.regularPrice || 0) * (item.quantity || 0),
+        0
+      );
+
+      const totalBeforeDiscount = totalProductPrice + shippingFee;
+      const totalPrice = Math.max(totalBeforeDiscount - discountAmount, 0);
+
       const response = await fetch(
         "https://localhost:7022/minimal/api/send-order-email",
         {
@@ -205,12 +225,18 @@ const CheckoutPage = ({ cart, setCart }) => {
           body: JSON.stringify({
             email: user.email,
             customerName: user.fullName || `${user.lastName} ${user.firstName}`,
-            orderCode: orderCode || `OD${new Date().getTime()}`,
-            totalPrice: totalPrice,
+            orderCode,
+            totalPrice,
+            totalBeforeDiscount,
+            shippingFee,
+            couponCode,
+            discountAmount,
             orderItems: cart.map((item) => ({
               productName: item.productName,
               quantity: item.quantity,
-              price: (item.discountPrice || item.regularPrice) * item.quantity,
+              price:
+                (item.discountPrice || item.regularPrice || 0) *
+                (item.quantity || 0),
             })),
           }),
         }
@@ -282,6 +308,7 @@ const CheckoutPage = ({ cart, setCart }) => {
             customerAddressId: addressIdToUse,
             paymentMethod: formData.paymentMethod,
             orderItems,
+            couponCode: couponCode.trim() || null,
           }),
         }
       );
@@ -296,7 +323,7 @@ const CheckoutPage = ({ cart, setCart }) => {
           (total, item) =>
             total + (item.discountPrice || item.regularPrice) * item.quantity,
           0
-        ) + 30;
+        ) + 30000;
 
       if (formData.paymentMethod === "Online") {
         const paymentResponse = await fetch(
@@ -342,13 +369,14 @@ const CheckoutPage = ({ cart, setCart }) => {
           setCart([]);
           localStorage.removeItem("buyNowProduct");
           localStorage.removeItem("selectedProducts");
-
           sendOrderEmailToCustomer(
             user,
             cart,
-            totalPrice,
-            `OD${createdOrderId}`
+            `OD${createdOrderId}`,
+            couponCode,
+            discountAmount
           );
+
           navigate("/my-orders");
         }, 2500);
       }, 1500);
@@ -356,6 +384,51 @@ const CheckoutPage = ({ cart, setCart }) => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+
+    try {
+      const res = await fetch(
+        `https://localhost:7022/minimal/api/get-code-coupon?couponcode=${couponCode}`
+      );
+
+      if (!res.ok) {
+        Swal.fire("Mã không hợp lệ", "Không tìm thấy mã giảm giá.", "error");
+        setDiscountAmount(0);
+        return;
+      }
+
+      const data = await res.json();
+
+      // Kiểm tra xem mã còn hiệu lực hay không
+      const now = new Date();
+      const endDate = new Date(data.couponEndDate);
+      const isStillValid =
+        data.isActive && data.timesUsed < data.maxUsage && endDate >= now;
+
+      if (!isStillValid) {
+        Swal.fire("Hết hạn", "Mã giảm giá không còn hiệu lực.", "warning");
+        setDiscountAmount(0);
+        return;
+      }
+
+      const discount = parseFloat(data.discount);
+      if (isNaN(discount)) {
+        Swal.fire("Lỗi", "Giá trị giảm giá không hợp lệ.", "error");
+        return;
+      }
+
+      setDiscountAmount(discount);
+      Swal.fire(
+        "Thành công",
+        `Áp dụng mã giảm ${discount.toLocaleString()} VND`,
+        "success"
+      );
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Lỗi", "Không thể kiểm tra mã giảm giá.", "error");
     }
   };
 
@@ -462,6 +535,38 @@ const CheckoutPage = ({ cart, setCart }) => {
               <strong>Phí vận chuyển</strong>
               <span>{shippingFee.toLocaleString()} VND</span>
             </li>
+            <li className="list-group-item d-flex justify-content-between">
+              <strong>Thành tiền (chưa giảm)</strong>
+              <span>
+                {(totalProductPrice + shippingFee).toLocaleString()} VND
+              </span>
+            </li>
+
+            <li className="list-group-item">
+              <label htmlFor="coupon">Mã giảm giá:</label>
+              <div className="d-flex mt-1">
+                <input
+                  type="text"
+                  id="coupon"
+                  className="form-control me-2"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="Nhập mã giảm giá"
+                />
+                <button
+                  className="btn btn-outline-success"
+                  onClick={handleApplyCoupon}
+                >
+                  Áp dụng
+                </button>
+              </div>
+              {discountAmount > 0 && (
+                <div className="mt-1 text-success">
+                  ✅ Giảm {discountAmount.toLocaleString()} VND
+                </div>
+              )}
+            </li>
+
             <li className="list-group-item d-flex justify-content-between">
               <strong>Tổng tiền</strong>
               <span>{totalPrice.toLocaleString()} VND</span>

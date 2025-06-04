@@ -232,18 +232,44 @@ const OrderManagement = () => {
 
       // ===== TỔNG & NGÀY IN =====
       const finalY = doc.lastAutoTable.finalY + 10;
+      const discount = parseFloat(orderDetail.coupon?.discount ?? 0);
+      const totalBeforeDiscount = orderDetail.totalPrice + discount;
+
+      doc.setFontSize(12);
       doc.setFont(undefined, "bold");
       doc.setTextColor(0);
       doc.text(
-        `TỔNG TIỀN: ${orderDetail.totalPrice.toLocaleString()} VND`,
+        `TỔNG TIỀN (chưa giảm): ${totalBeforeDiscount.toLocaleString()} VND`,
         14,
         finalY
       );
+
+      if (orderDetail.coupon) {
+        doc.setFont(undefined, "normal");
+        doc.setTextColor(0, 128, 0); // màu xanh lá
+        doc.text(
+          `Mã giảm giá (${
+            orderDetail.coupon.code
+          }): -${discount.toLocaleString()} VND`,
+          14,
+          finalY + 6
+        );
+      }
+
+      doc.setTextColor(0);
+      doc.setFont(undefined, "bold");
+      doc.text(
+        `TỔNG TIỀN PHẢI TRẢ: ${orderDetail.totalPrice.toLocaleString()} VND`,
+        14,
+        finalY + (orderDetail.coupon ? 12 : 6)
+      );
+
+      // ===== NGÀY IN =====
       doc.setFont(undefined, "normal");
       doc.text(
         `Ngày in: ${new Date().toLocaleDateString("vi-VN")}`,
         14,
-        finalY + 6
+        finalY + (orderDetail.coupon ? 18 : 12)
       );
 
       // ===== CHỮ KÝ =====
@@ -321,9 +347,23 @@ const OrderManagement = () => {
 
     // ===== TỔNG & NGÀY =====
     sheet.addRow([]);
-    const totalRow = sheet.addRow([
-      `TỔNG TIỀN: ${orderDetail.totalPrice.toLocaleString()} VND`,
+    const discount = parseFloat(orderDetail.coupon?.discount ?? 0);
+    const beforeDiscount = orderDetail.totalPrice + discount;
+
+    sheet.addRow([
+      `TỔNG TIỀN (chưa giảm): ${beforeDiscount.toLocaleString()} VND`,
     ]);
+    if (orderDetail.coupon) {
+      sheet.addRow([
+        `Mã giảm giá (${
+          orderDetail.coupon.code
+        }): -${discount.toLocaleString()} VND`,
+      ]);
+    }
+    const totalRow = sheet.addRow([
+      `TỔNG TIỀN PHẢI TRẢ: ${orderDetail.totalPrice.toLocaleString()} VND`,
+    ]);
+
     totalRow.font = { bold: true };
     sheet.mergeCells(`A${totalRow.number}:D${totalRow.number}`);
 

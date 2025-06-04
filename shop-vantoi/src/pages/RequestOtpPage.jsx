@@ -51,23 +51,18 @@ const RequestOtpPage = () => {
   return (
     <div className="container mt-5">
       <motion.h1
-        className="text-center mb-4"
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{
-          duration: 1,
-          repeat: Infinity, // Lặp lại vô hạn
-          repeatType: "reverse", // Lặp lại theo chiều ngược lại
-          repeatDelay: 2, // Đợi 4 giây (tổng thời gian sẽ là 5 giây vì thời gian animation là 1 giây)
-        }}
-        style={{
-          background: "linear-gradient(45deg, #ff6ec7, #ffy900)",
-          color: "red",
-          WebkitBackgroundClip: "text",
-          backgroundClip: "text",
+        className="product-name-title mb-3"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        whileHover={{
+          scale: 1.05,
+          textShadow: "0px 2px 10px rgba(0, 0, 0, 0.2)",
         }}
       >
-        Yêu cầu mã OTP
+        <center>
+          <p>HÃY NHẬP MÃ "OTP"</p>
+        </center>
       </motion.h1>
       <form onSubmit={handleRequestOtp} className="mt-3">
         {error && <div className="alert alert-danger">{error}</div>}

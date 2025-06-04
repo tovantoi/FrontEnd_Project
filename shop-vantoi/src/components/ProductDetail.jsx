@@ -67,7 +67,6 @@ const ProductDetail = ({ addToCart }) => {
         Swal.close();
       }
     };
-
     const fetchReviews = async () => {
       try {
         const response = await fetch(
@@ -84,6 +83,15 @@ const ProductDetail = ({ addToCart }) => {
     fetchProduct();
     fetchReviews(); // ✅ Đặt trong useEffect nên sẽ gọi đúng
   }, [productId]);
+  // ✅ Tự động cuộn tới phần đánh giá nếu có #review trên URL
+  useEffect(() => {
+    if (window.location.hash === "#review") {
+      setTimeout(() => {
+        const el = document.querySelector("#review-section");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    }
+  }, []);
 
   if (error) {
     return <div className="alert alert-danger">{error}</div>;
@@ -113,6 +121,15 @@ const ProductDetail = ({ addToCart }) => {
     }
 
     try {
+      Swal.fire({
+        title: "Đang xử lý thử đồ...",
+        text: "Vui lòng đợi trong giây lát...",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       const formData = new FormData();
       formData.append("person", userImage);
 
@@ -169,20 +186,31 @@ const ProductDetail = ({ addToCart }) => {
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    setPreviewFiles([...previewFiles, ...files]);
+
+    const previews = files.map((file) => ({
+      file: file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+
+    setPreviewFiles((prev) => [...prev, ...previews]);
 
     const base64Promises = files.map((file) => convertToBase64(file));
     const converted = await Promise.all(base64Promises);
-    setMediaBase64List([...mediaBase64List, ...converted]);
+    setMediaBase64List((prev) => [...prev, ...converted]);
   };
+
   const handleRemoveFile = (index) => {
     const newPreviews = [...previewFiles];
-    const newBase64s = [...mediaBase64List];
+    URL.revokeObjectURL(newPreviews[index].previewUrl); // cleanup memory
     newPreviews.splice(index, 1);
+
+    const newBase64s = [...mediaBase64List];
     newBase64s.splice(index, 1);
+
     setPreviewFiles(newPreviews);
     setMediaBase64List(newBase64s);
   };
+
   const handleReviewSubmit = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const userId = user?.userID || user?.id; // Dùng đúng key thực tế
@@ -646,115 +674,181 @@ const ProductDetail = ({ addToCart }) => {
         </div>
       )}
 
-      <div>
-        <div className="mb-3">
-          <label className="form-label">Tải ảnh của bạn lên:</label>
-          <input
-            type="file"
-            className="form-control"
-            onChange={handleImageUpload}
-          />
-          {previewImage && (
-            <img src={previewImage} alt="Preview" className="img-fluid mt-2" />
-          )}
-        </div>
+      <div className="virtual-tryon-section p-4 my-5 bg-light rounded shadow-sm">
+        <h4 className="mb-3 fw-bold">🧥 Thử Đồ Ảo</h4>
 
-        <button className="btn btn-primary" onClick={handleVirtualTryOn}>
-          Thử đồ ảo
-        </button>
+        <div className="row g-4">
+          {/* Upload ảnh người dùng */}
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">
+              1️⃣ Tải ảnh chân dung:
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              className="form-control mb-2"
+              onChange={handleImageUpload}
+            />
+            {previewImage && (
+              <img
+                src={previewImage}
+                alt="Ảnh bạn đã tải"
+                className="img-fluid rounded border"
+                style={{ maxHeight: "300px", objectFit: "cover" }}
+              />
+            )}
+          </div>
+
+          {/* Nút thử đồ và ảnh kết quả */}
+          <div className="col-md-6 d-flex flex-column justify-content-between">
+            <div>
+              <label className="form-label fw-semibold mb-2">
+                2️⃣ Nhấn nút bên dưới để thử đồ:
+              </label>
+              <button
+                className="btn btn-outline-primary w-100 mb-3"
+                onClick={handleVirtualTryOn}
+              >
+                🚀 Thử Ngay
+              </button>
+            </div>
+
+            {virtualTryOnImage && (
+              <div>
+                <label className="form-label fw-semibold">3️⃣ Kết quả:</label>
+                <img
+                  src={virtualTryOnImage}
+                  alt="Kết quả thử đồ"
+                  className="img-fluid rounded border"
+                  style={{ maxHeight: "300px", objectFit: "contain" }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       {virtualTryOnImage && (
-        <div className="mt-4">
-          <h4>Kết quả thử đồ ảo</h4>
-          <img
-            src={virtualTryOnImage}
-            alt="Kết quả thử đồ"
-            className="img-fluid rounded border"
-            style={{ maxWidth: "100%", maxHeight: "500px" }}
-          />
+        <div className="result-tryon-container mt-5 p-4 bg-white rounded shadow-sm border">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="fw-bold text-success mb-0">
+              ✅ Kết quả thử đồ ảo của bạn
+            </h5>
+            <div className="d-flex gap-2">
+              <a
+                href={virtualTryOnImage}
+                download="virtual-tryon-result.jpg"
+                className="btn btn-outline-secondary btn-sm"
+              >
+                ⬇️ Tải ảnh
+              </a>
+              <button
+                className="btn btn-outline-info btn-sm"
+                onClick={() => window.open(virtualTryOnImage, "_blank")}
+              >
+                🔍 Xem lớn
+              </button>
+            </div>
+          </div>
+          <div className="text-center">
+            <img
+              src={virtualTryOnImage}
+              alt="Ảnh kết quả thử đồ"
+              className="img-fluid rounded shadow-sm border"
+              style={{
+                maxHeight: "500px",
+                objectFit: "contain",
+                border: "2px solid #ccc",
+              }}
+            />
+          </div>
         </div>
       )}
 
       <div className="mt-4">
         <h3>Đánh giá sản phẩm</h3>
 
-        <div className="mb-4 d-flex align-items-center gap-2">
-          <label className="fw-semibold me-2">Chọn đánh giá:</label>
-          {[1, 2, 3, 4, 5].map((star) => (
-            <span
-              key={star}
-              onClick={() => setRating(star)}
-              onMouseEnter={() => setHover(star)}
-              onMouseLeave={() => setHover(rating)}
-              style={{
-                cursor: "pointer",
-                fontSize: "28px",
-                transition: "transform 0.2s",
-                color: star <= (hover || rating) ? "#FFD700" : "#E4E5E9",
-                transform: star === hover ? "scale(1.2)" : "scale(1)",
-              }}
-              title={`${star} sao`}
-            >
-              <FaStar />
-            </span>
-          ))}
-          {rating > 0 && (
-            <span className="ms-2 text-success fw-medium">{rating} sao</span>
-          )}
+        <div className="mb-4">
+          <label className="fw-bold">🌟 Đánh giá của bạn:</label>
+          <div className="d-flex align-items-center gap-1 mt-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <motion.span
+                key={star}
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHover(star)}
+                onMouseLeave={() => setHover(0)}
+                whileHover={{ scale: 1.3 }}
+                style={{
+                  cursor: "pointer",
+                  fontSize: "32px",
+                  color: star <= (hover || rating) ? "#FFD700" : "#ddd",
+                }}
+                title={`${star} sao`}
+              >
+                <FaStar />
+              </motion.span>
+            ))}
+            {rating > 0 && (
+              <span className="ms-2 text-success fw-medium">{rating} sao</span>
+            )}
+          </div>
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">
-            Viết bình luận và tải ảnh/video đánh giá:
-          </label>
+        <div
+          id="review-section"
+          className="mt-4 border p-4 rounded shadow-sm bg-light"
+        >
+          <h4 className="fw-bold mb-3">✍️ Viết đánh giá sản phẩm</h4>
 
           <div className="position-relative border rounded p-3">
             {/* Hiển thị preview các ảnh/video */}
             <div className="d-flex gap-2 flex-wrap mb-3">
-              {previewFiles.map((file, index) => (
-                <div
-                  key={index}
-                  className="position-relative"
-                  style={{ width: "100px", height: "100px" }}
-                >
-                  {file.type.startsWith("image/") ? (
-                    <img
-                      src={file.url}
-                      alt="preview"
-                      className="rounded"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ) : (
-                    <video
-                      src={file.url}
-                      controls
-                      className="rounded"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  )}
+              {previewFiles.map((item, index) => {
+                if (!item?.file) return null; // 🛡️ tránh lỗi nếu undefined
 
-                  {/* Nút X xoá */}
-                  <button
-                    type="button"
-                    className="position-absolute top-0 end-0 btn btn-sm btn-danger rounded-circle"
-                    style={{
-                      transform: "translate(50%, -50%)",
-                      padding: "2px 6px",
-                    }}
-                    onClick={() => handleRemoveFile(index)}
+                return (
+                  <div
+                    key={index}
+                    className="position-relative"
+                    style={{ width: "100px", height: "100px" }}
                   >
-                    ×
-                  </button>
-                </div>
-              ))}
+                    {item.file.type.startsWith("image/") ? (
+                      <img
+                        src={item.previewUrl}
+                        alt="preview"
+                        className="rounded"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <video
+                        src={item.previewUrl}
+                        controls
+                        className="rounded"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    )}
+
+                    <button
+                      type="button"
+                      className="position-absolute top-0 end-0 btn btn-sm btn-danger rounded-circle"
+                      style={{
+                        transform: "translate(50%, -50%)",
+                        padding: "2px 6px",
+                      }}
+                      onClick={() => handleRemoveFile(index)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Nút dấu cộng đẹp */}
@@ -791,7 +885,7 @@ const ProductDetail = ({ addToCart }) => {
           className="btn btn-success w-100 mt-3"
           onClick={handleReviewSubmit}
         >
-          Gửi đánh giá
+          🚀 Gửi đánh giá
         </button>
       </div>
       <div className="mt-5">
@@ -810,37 +904,54 @@ const ProductDetail = ({ addToCart }) => {
           {reviews.slice(0, visibleReviews).map((review, index) => (
             <div
               key={index}
-              className="p-3 mb-2"
-              style={{
-                backgroundColor: "#ffffff",
-                border: "1px solid #dee2e6",
-                borderRadius: "6px",
-              }}
+              className="p-3 mb-3 bg-white rounded shadow-sm border"
             >
-              <div className="d-flex align-items-center mb-1">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    size={18}
-                    color={i < review.rating ? "#FFD700" : "#E4E5E9"}
-                  />
-                ))}
+              <div className="d-flex align-items-center mb-2">
+                <img
+                  src={
+                    review.customerDTO?.avatarImagePath ||
+                    `https://i.pravatar.cc/40?u=${
+                      review.customerDTO?.email || "user"
+                    }`
+                  }
+                  alt="avatar"
+                  className="rounded-circle me-2"
+                  style={{ width: "40px", height: "40px" }}
+                />
+                <div>
+                  <div className="fw-semibold">
+                    {review.customerDTO?.fullName || "Người dùng"}
+                  </div>
+                  <div className="d-flex align-items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <FaStar
+                        key={i}
+                        size={16}
+                        color={i < review.rating ? "#FFD700" : "#ddd"}
+                      />
+                    ))}
+                  </div>
+                  <small className="text-muted">
+                    {review.customerDTO?.email}
+                  </small>
+                  <br />
+                  {review.orderItems?.[0]?.quantity && (
+                    <small className="text-muted">
+                      🛒 <strong>{review.orderItems[0].quantity}</strong> sản
+                      phẩm đã mua
+                    </small>
+                  )}
+                </div>
               </div>
 
-              {/* Hiển thị bình luận dù không có ảnh */}
-              <p className="mb-0">{review.comment}</p>
+              <p className="mb-1">{review.comment}</p>
 
-              {/* Nếu có ảnh thì mới hiển thị */}
               {review.imageUrl && (
                 <img
                   src={review.imageUrl}
                   alt="Ảnh đánh giá"
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "200px",
-                    marginTop: "8px",
-                  }}
-                  className="img-fluid rounded"
+                  className="img-fluid rounded mt-2"
+                  style={{ maxHeight: "200px", objectFit: "contain" }}
                 />
               )}
 
@@ -848,11 +959,8 @@ const ProductDetail = ({ addToCart }) => {
                 <video
                   src={review.videoUrl}
                   controls
-                  style={{
-                    width: "100%",
-                    maxHeight: "300px",
-                    marginTop: "10px",
-                  }}
+                  className="w-100 rounded mt-2"
+                  style={{ maxHeight: "300px" }}
                 />
               )}
             </div>

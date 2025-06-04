@@ -44,6 +44,8 @@ const Dashboard = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
+  const isCustomDateMode = fromDate !== "" && toDate !== "";
+
   useEffect(() => {
     setInterval(() => setColor(getRandomColor()), 5000);
     fetch("https://localhost:7022/minimal/api/get-sales-summary")
@@ -58,12 +60,24 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    let url = `https://localhost:7022/minimal/api/get-revenue-day-week-month?mode=${revenueMode}`;
-    if (fromDate) url += `&from=${fromDate}`;
-    if (toDate) url += `&to=${toDate}`;
+    if (!isCustomDateMode) {
+      setFromDate("");
+      setToDate("");
+    }
+  }, [revenueMode]);
+
+  useEffect(() => {
+    let url = isCustomDateMode
+      ? `https://localhost:7022/minimal/api/get-revenue-time?from=${fromDate}&to=${toDate}`
+      : `https://localhost:7022/minimal/api/get-revenue-day-week-month?mode=${revenueMode}`;
+
+    console.log("📡 Fetching from:", url);
+
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
+        console.log("📊 API response:", data);
+
         setRevenueTimeline(data);
         setRevenueNewCustomers(
           data.map((i) => ({
@@ -71,14 +85,25 @@ const Dashboard = () => {
             value: i.totalRevenueFromNewCustomers || 0,
           }))
         );
+      })
+      .catch((err) => {
+        console.error("❌ Fetch error:", err);
       });
   }, [revenueMode, fromDate, toDate]);
 
   const revenueTimelineChart = {
-    labels: revenueTimeline.map((i) => i.label),
+    labels: revenueTimeline.map((i, idx) => {
+      if (i.label.toLowerCase().includes("hiện tại")) {
+        return new Date().toLocaleDateString("vi-VN"); // hoặc bạn format theo yyyy-MM-dd
+      }
+      return i.label;
+    }),
+
     datasets: [
       {
-        label: `Tổng doanh thu (${revenueMode})`,
+        label: isCustomDateMode
+          ? "Tổng doanh thu (Tuỳ chọn)"
+          : `Tổng doanh thu (${revenueMode})`,
         data: revenueTimeline.map((i) => i.totalRevenue / 1000),
         borderColor: "#36A2EB",
         backgroundColor: "rgba(54,162,235,0.3)",
@@ -89,10 +114,18 @@ const Dashboard = () => {
   };
 
   const revenueNewCustomerChart = {
-    labels: revenueNewCustomers.map((i) => i.label),
+    labels: revenueNewCustomers.map((i, idx) => {
+      if (i.label.toLowerCase().includes("hiện tại")) {
+        return new Date().toLocaleDateString("vi-VN");
+      }
+      return i.label;
+    }),
+
     datasets: [
       {
-        label: `Doanh thu KH mới (${revenueMode})`,
+        label: isCustomDateMode
+          ? "Doanh thu KH mới (Tuỳ chọn)"
+          : `Doanh thu KH mới (${revenueMode})`,
         data: revenueNewCustomers.map((i) => i.value / 1000),
         borderColor: "#FF8C00",
         backgroundColor: "rgba(255,140,0,0.3)",
@@ -197,17 +230,22 @@ const Dashboard = () => {
       </div>
 
       <div className="filter-row">
-        <label>Chế độ thống kê:</label>
-        <select
-          value={revenueMode}
-          onChange={(e) => setRevenueMode(e.target.value)}
-        >
-          <option value="day">Ngày</option>
-          <option value="week">Tuần</option>
-          <option value="month">Tháng</option>
-          <option value="year">Năm</option>
-          <option value="">Tất cả</option>
-        </select>
+        {!isCustomDateMode && (
+          <>
+            <label>Chế độ thống kê:</label>
+            <select
+              value={revenueMode}
+              onChange={(e) => setRevenueMode(e.target.value)}
+            >
+              <option value="day">Ngày</option>
+              <option value="week">Tuần</option>
+              <option value="month">Tháng</option>
+              <option value="year">Năm</option>
+              <option value="">Tất cả</option>
+            </select>
+          </>
+        )}
+
         <label>Từ:</label>
         <input
           type="date"
@@ -220,20 +258,110 @@ const Dashboard = () => {
           value={toDate}
           onChange={(e) => setToDate(e.target.value)}
         />
+
+        {isCustomDateMode && (
+          <span
+            style={{ marginLeft: "10px", color: "#888", fontStyle: "italic" }}
+          >
+            📆 Đang xem theo thời gian tự chọn
+          </span>
+        )}
       </div>
+
       <div className="chart-xl-wrapper">
         <motion.div className="chart-xl">
           <h3>Doanh thu theo thời gian</h3>
           <Line
             data={revenueTimelineChart}
-            options={{ responsive: true, maintainAspectRatio: false }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              spanGaps: true,
+              plugins: {
+                legend: { position: "top" },
+                tooltip: { enabled: true },
+              },
+              scales: {
+                x: {
+                  ticks: {
+                    autoSkip: false,
+                    maxRotation: 45,
+                    minRotation: 0,
+                  },
+                  title: {
+                    display: true,
+                    text: "Thời gian",
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  min: 0,
+                  suggestedMax:
+                    Math.max(
+                      ...revenueTimeline.map((i) => i.totalRevenue / 1000)
+                    ) + 10 || 100,
+                  title: {
+                    display: true,
+                    text: "Doanh thu (ngàn VNĐ)",
+                  },
+                },
+              },
+              elements: {
+                point: {
+                  radius: 10, // 👈 hiển thị rõ hơn khi chỉ có 1 điểm
+                },
+                line: {
+                  tension: 0.4,
+                  borderWidth: 3, // 👈 tăng độ dày đường
+                },
+              },
+            }}
           />
         </motion.div>
+
         <motion.div className="chart-xl">
           <h3>Doanh thu từ KH mới</h3>
           <Line
             data={revenueNewCustomerChart}
-            options={{ responsive: true, maintainAspectRatio: false }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              spanGaps: true,
+              plugins: {
+                legend: { position: "top" },
+                tooltip: { enabled: true },
+              },
+              scales: {
+                x: {
+                  ticks: {
+                    autoSkip: false,
+                    maxRotation: 45,
+                  },
+                  title: {
+                    display: true,
+                    text: "Thời gian",
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  min: 0,
+                  suggestedMax:
+                    Math.max(
+                      ...revenueNewCustomers.map((i) => i.value / 1000)
+                    ) + 10,
+                  title: {
+                    display: true,
+                    text: "Doanh thu (ngàn VNĐ)",
+                  },
+                },
+              },
+              elements: {
+                point: {
+                  radius: 6,
+                  backgroundColor: "#FF8C00",
+                },
+              },
+            }}
           />
         </motion.div>
       </div>
@@ -246,20 +374,6 @@ const Dashboard = () => {
         <motion.div className="chart">
           <h3>Doanh thu theo danh mục</h3>
           <Bar data={categoryRevenueChartData} />
-        </motion.div>
-        <motion.div className="chart">
-          <h3>Thành phần chi phí</h3>
-          <Doughnut data={doughnutChartData} />
-        </motion.div>
-        <motion.div className="chart">
-          <h3>Doanh thu theo kênh</h3>
-          <Bar data={barChartData} />
-        </motion.div>
-        <motion.div className="sales-rep">
-          <h3>Đại diện bán hàng</h3>
-          <div className="sales-card">Văn Tới: 3.200-VNĐ</div>
-          <div className="sales-card">Quốc Ninh: 2.600-VNĐ</div>
-          <div className="sales-card">Bá Hiếu: 2.100-VNĐ</div>
         </motion.div>
       </div>
     </div>

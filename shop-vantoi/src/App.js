@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import BlogPage from "./pages/BlogPage";
+import AutoReplyEmailPage from "./pages/AutoReplyEmailPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import RegisterPage from "./pages/RegisterPage";
 import MyAccountPage from "./pages/MyAccountPage";
@@ -22,6 +23,7 @@ import ProductDetail from "./components/ProductDetail";
 import Phukien from "./components/Phukien";
 import Logout from "./components/Logout";
 import CartPage from "./pages/CartPage";
+import ChangePasswordLoginPage from "./pages/ChangePasswordLoginPage";
 import Dashboard from "./pages/Admin/Dashboard";
 import ProductManagement from "./pages/Admin/ProductManagement";
 import AddProduct from "./pages/Admin/AddProduct";
@@ -118,24 +120,42 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
     "/fashion-corner-2",
     "/fashion-corner-3",
     "/category/:categoryId",
+    "/change-pw-login",
   ];
-const user = JSON.parse(localStorage.getItem("user"));
-const visibleChatbotPaths = [
-  "/",
-  "/products",
-  "/blogpage",
-  "/contact",
-  "/faq",
-  "/about",
-  "/about-us",
-  "/stores",
-  "/phukien",
-];
-const shouldShowChatbot =
-  user &&
-  visibleChatbotPaths.some((path) =>
-    new RegExp(`^${path.replace(/:[^/]+/g, "[^/]+")}$`).test(location.pathname)
-  );
+  const user = JSON.parse(localStorage.getItem("user"));
+  const visibleChatbotPaths = [
+    "/",
+    "/products",
+    "/blogpage",
+    "/contact",
+    "/about",
+    "/stores",
+    "/privacy-policy",
+    "/faq",
+    "/shipping-policy",
+    "/size-guide",
+    "/payment-guide",
+    "/exchange-policy",
+    "/purchase-guide",
+    "/payment-success",
+    "/about-us",
+    "/phukien",
+    "/product/:productId",
+    "/fashion-tip-1",
+    "/fashion-tip-2",
+    "/fashion-tip-3",
+    "/fashion-corner-1",
+    "/fashion-corner-2",
+    "/fashion-corner-3",
+    "/auto-reply",
+  ];
+  const shouldShowChatbot =
+    user &&
+    visibleChatbotPaths.some((path) =>
+      new RegExp(`^${path.replace(/:[^/]+/g, "[^/]+")}$`).test(
+        location.pathname
+      )
+    );
 
   const isNotFound = !definedRoutes.some((route) =>
     new RegExp(`^${route.replace(/:[^/]+/g, "[^/]+")}$`).test(location.pathname)
@@ -163,6 +183,8 @@ const shouldShowChatbot =
         <Route path="/fashion-corner-2" element={<FashionCorner2 />} />
         <Route path="/fashion-corner-3" element={<FashionCorner3 />} />
         <Route path="/about-us*" element={<AboutUs />} />
+        <Route path="/auto-reply" element={<AutoReplyEmailPage />} />
+        <Route path="/change-pw-login" element={<ChangePasswordLoginPage />} />
         <Route path="/collection" element={<CollectionUrbanDream />} />
         <Route path="/fashion-tip-1" element={<FashionTip1 />} />
         <Route path="/fashion-tip-2" element={<FashionTip2 />} />

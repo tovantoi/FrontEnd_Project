@@ -1,0 +1,70 @@
+.contact-page {
+  max-width: 1200px;
+  margin: auto;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.section-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  background: linear-gradient(to right, #c44dd6, #ff8247);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: #ff8247;
+  margin: 0.5rem auto 0;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.section-title:hover::after {
+  width: 80px;
+}
+
+.contact-form-box input,
+.contact-form-box textarea {
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+.contact-form-box input:focus,
+.contact-form-box textarea:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.1rem rgba(13, 110, 253, 0.25);
+}
+
+.contact-form-box .btn-primary {
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 20px;
+}
+
+.contact-info-box p {
+  margin-bottom: 0.6rem;
+  font-size: 15px;
+  color: #555;
+}
+
+.contact-info-box h4 {
+  font-weight: 700;
+  margin-top: 1.2rem;
+}
+
+.contact-info-box a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.contact-info-box a:hover {
+  text-decoration: underline;
+}

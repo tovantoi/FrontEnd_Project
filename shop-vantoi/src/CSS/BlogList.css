@@ -1,26 +1,28 @@
+/* BlogList.css */
+
+.product-name-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
 .card {
   border: none;
-  border-radius: 12px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-}
-
-.card-title {
-  color: #2c3e50;
-  font-weight: 600;
-  font-size: 1.25rem;
-}
-
-.card-text {
-  font-size: 0.95rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .card-img-top {
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  height: 220px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
   transition: transform 0.3s ease;
 }
 
@@ -28,10 +30,28 @@
   transform: scale(1.03);
 }
 
-.blog-title {
-  font-family: "Poppins", sans-serif;
-  font-weight: 700;
-  font-size: 2.5rem;
-  color: #6f42c1;
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.card-body {
+  padding: 1rem 1.2rem;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s;
+}
+
+.card-text {
+  font-size: 0.95rem;
+  color: #666;
+  height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .card-img-top {
+    height: 180px;
+  }
 }

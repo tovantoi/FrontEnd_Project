@@ -1,11 +1,14 @@
-import React, { useState } from "react";
-import { SendHorizonal, MessageCircle } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { SendHorizonal, MessageCircle, Image as ImageIcon } from "lucide-react";
 import "../chatbot.css";
 
 const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef();
 
   const toggleChat = () => {
     setIsOpen((prev) => {
@@ -20,16 +23,32 @@ const ChatbotWidget = () => {
       return !prev;
     });
   };
-  const sendMessage = async () => {
-    if (!userInput.trim()) return;
 
-    setMessages((prev) => [...prev, { sender: "user", text: userInput }]);
+  const sendMessage = async () => {
+    if (!userInput.trim() && !imageFile) return;
+
+    setMessages((prev) => [
+      ...prev,
+      ...(userInput ? [{ sender: "user", text: userInput }] : []),
+      ...(imageFile
+        ? [
+            {
+              sender: "user",
+              text: "🖼️ Đã gửi hình ảnh.",
+              image: imagePreview,
+            },
+          ]
+        : []),
+    ]);
+
+    const formData = new FormData();
+    formData.append("message", userInput);
+    if (imageFile) formData.append("image", imageFile);
 
     try {
       const res = await fetch("http://localhost:5050/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userInput }),
+        body: formData,
       });
       const data = await res.json();
       const reply = data.reply || "Xin lỗi, tôi không thể phản hồi lúc này.";
@@ -38,11 +57,35 @@ const ChatbotWidget = () => {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { sender: "bot", text: "Có lỗi khi kết nối đến chatbot." },
+        { sender: "bot", text: "❌ Không kết nối được đến chatbot." },
       ]);
     }
 
     setUserInput("");
+    setImageFile(null);
+    setImagePreview(null);
+  };
+  const renderMessageText = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split("\n").map((line, i) => (
+      <p key={i}>
+        {line.split(urlRegex).map((part, j) =>
+          urlRegex.test(part) ? (
+            <a
+              key={j}
+              href={part}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#007bff", textDecoration: "underline" }}
+            >
+              {part}
+            </a>
+          ) : (
+            part
+          )
+        )}
+      </p>
+    ));
   };
 
   return (
@@ -64,11 +107,39 @@ const ChatbotWidget = () => {
                   msg.sender === "user" ? "user" : "bot"
                 }`}
               >
-                {msg.text}
+                <div>{renderMessageText(msg.text)}</div>
+                {msg.image && (
+                  <img
+                    src={msg.image}
+                    alt="Hình ảnh đã gửi"
+                    style={{
+                      marginTop: 8,
+                      maxWidth: "100%",
+                      borderRadius: 8,
+                      border: "1px solid #ccc",
+                    }}
+                  />
+                )}
               </div>
             ))}
           </div>
+
           <div className="chatbot-input-area">
+            {imagePreview && (
+              <div className="image-preview">
+                <img src={imagePreview} alt="preview" />
+                <button
+                  className="remove-image"
+                  onClick={() => {
+                    setImageFile(null);
+                    setImagePreview(null);
+                  }}
+                  title="Xoá ảnh"
+                >
+                  ×
+                </button>
+              </div>
+            )}
             <input
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
@@ -76,9 +147,36 @@ const ChatbotWidget = () => {
               className="chatbot-input"
               placeholder="Nhập tin nhắn..."
             />
+
+            <button
+              onClick={() => fileInputRef.current.click()}
+              className="chatbot-send-button"
+              title="Gửi ảnh"
+            >
+              <ImageIcon size={18} />
+            </button>
+
             <button onClick={sendMessage} className="chatbot-send-button">
               <SendHorizonal size={18} />
             </button>
+
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              ref={fileInputRef}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setImageFile(file);
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    setImagePreview(event.target.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
           </div>
         </div>
       )}

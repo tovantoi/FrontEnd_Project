@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { FaSearch, FaUserCircle, FaShoppingCart } from "react-icons/fa";
 import "../CSS/CategoryMenu.css";
 import "../CSS/SearchSuggestions.css";
+import "../CSS/HeaderMenu.css";
 const Header = ({ cart }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -205,7 +206,7 @@ const Header = ({ cart }) => {
 
   return (
     <header className="bg-white shadow-sm sticky-top">
-      <div className="container d-flex justify-content-between align-items-center py-3">
+      <div className="container-fluid px-lg-5 d-flex justify-content-between align-items-center py-3">
         {/* Logo */}
         <div
           className="d-flex align-items-center gap-3 logo-wrap"
@@ -243,6 +244,7 @@ const Header = ({ cart }) => {
             <li
               className="nav-item dropdown"
               onMouseEnter={() => setActiveItem("danhmuc")}
+              onMouseLeave={() => setActiveItem("")}
             >
               <span
                 className={`nav-link dropdown-toggle ${
@@ -254,17 +256,36 @@ const Header = ({ cart }) => {
               >
                 Danh mục
               </span>
-              <ul className="dropdown-menu show-on-hover">
+
+              <ul
+                className="dropdown-menu custom-scroll-dropdown p-1"
+                style={{
+                  maxHeight: "220px",
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                  minWidth: "200px",
+                  borderRadius: "10px",
+                  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.12)",
+                }}
+              >
                 {categories.map((cat) => (
-                  <li
-                    key={cat.id}
-                    onClick={() => navigate(`/category/${cat.id}`)}
-                  >
-                    {cat.name}
+                  <li key={cat.id}>
+                    <span
+                      className="dropdown-item"
+                      style={{
+                        padding: "10px 16px",
+                        borderRadius: "6px",
+                        transition: "background 0.2s",
+                      }}
+                      onClick={() => navigate(`/category/${cat.id}`)}
+                    >
+                      {cat.name}
+                    </span>
                   </li>
                 ))}
               </ul>
             </li>
+
             {[
               { label: "Sản phẩm", path: "/products", key: "products" },
               { label: "Phụ kiện", path: "/phukien", key: "phukien" },

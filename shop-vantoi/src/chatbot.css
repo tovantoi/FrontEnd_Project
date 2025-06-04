@@ -120,3 +120,41 @@
 .chatbot-send-button:hover {
   background-color: #4338ca;
 }
+.chatbot-message img {
+  max-width: 100%;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.image-preview {
+  position: relative;
+  margin-right: 8px;
+}
+
+.image-preview img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.remove-image {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ff4444;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  line-height: 12px;
+  padding: 0;
+}
+.chatbot-message a:hover {
+  color: #0056b3;
+  text-decoration: none;
+}

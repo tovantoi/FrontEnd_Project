@@ -82,10 +82,13 @@ const LoginPage = () => {
           avatarImagePath: picture,
           role: 0,
         };
-        localStorage.setItem("user", JSON.stringify({
-          ...data.query,
-          avatarImagePath: avatar
-        }));
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...data.query,
+            avatarImagePath: avatar,
+          })
+        );
         window.dispatchEvent(new Event("storage"));
 
         Swal.fire(
@@ -195,6 +198,15 @@ const LoginPage = () => {
                   placeholder="Password"
                   required
                 />
+                <div className="text-end mt-1">
+                  <a
+                    href="/change-pw-login"
+                    className="text-warning small"
+                    style={{ textDecoration: "underline" }}
+                  >
+                    Quên mật khẩu?
+                  </a>
+                </div>
               </div>
               <button
                 type="submit"

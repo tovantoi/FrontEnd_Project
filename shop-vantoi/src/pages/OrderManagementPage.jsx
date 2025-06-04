@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./CSS/Order.css";
 import Swal from "sweetalert2";
+import emailjs from "@emailjs/browser";
 
 const OrderManagementPage = () => {
   const [orders, setOrders] = useState([]);
@@ -37,6 +38,212 @@ const OrderManagementPage = () => {
 
     fetchOrders();
   }, []);
+  // Trong component OrderManagementPage hoặc file chứa handleFeedback
+  const handleFeedback = async (orderId) => {
+    try {
+      const res = await fetch(
+        `https://localhost:7022/minimal/api/get-order-by-id?id=${orderId}`
+      );
+      const dataArray = await res.json();
+
+      if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        Swal.fire("Lỗi", "Không thể xác định đơn hàng để phản hồi.", "error");
+        return;
+      }
+
+      const order = dataArray[0];
+      const orderItem = order?.orderItems?.[0];
+
+      if (!orderItem?.productId) {
+        Swal.fire("Lỗi", "Không thể xác định sản phẩm để phản hồi.", "error");
+        return;
+      }
+
+      const { value: feedback } = await Swal.fire({
+        title: "Phản hồi người bán",
+        input: "textarea",
+        inputLabel: "Nội dung phản hồi",
+        inputPlaceholder: "Nhập phản hồi của bạn...",
+        inputAttributes: {
+          "aria-label": "Nhập phản hồi tại đây",
+        },
+        showCancelButton: true,
+        confirmButtonText: "Gửi",
+      });
+
+      if (feedback && feedback.trim()) {
+        const customer_name = order?.address?.fullName || "Khách hàng";
+
+        const templateParams = {
+          customer_name,
+          feedback,
+          website: `http://localhost:3000/product/${orderItem.productId}#review`,
+          productId: orderItem.productId,
+          company: "SHOP VANTOI",
+          phone: "1900 8079",
+          email: "tovantoi2003@gmail.com",
+        };
+
+        await emailjs.send(
+          "service_byk855g",
+          "template_16ib71f",
+          templateParams,
+          "HF6Wcu5eZUxx-qnE4"
+        );
+
+        Swal.fire("Đã gửi phản hồi!", "", "success");
+      }
+    } catch (error) {
+      console.error("Lỗi phản hồi:", error);
+      Swal.fire("Lỗi", "Không thể gửi phản hồi.", "error");
+    }
+  };
+
+  const handleReturnOrder = async (orderId) => {
+    try {
+      const res = await fetch(
+        `https://localhost:7022/minimal/api/get-order-by-id?id=${orderId}`
+      );
+      const dataArray = await res.json();
+
+      if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        Swal.fire("Lỗi", "Không thể xác định đơn hàng để hoàn trả.", "error");
+        return;
+      }
+
+      const order = dataArray[0];
+      const orderItem = order?.orderItems?.[0];
+
+      const { value: reason } = await Swal.fire({
+        title: "Lý do hoàn trả đơn hàng",
+        input: "textarea",
+        inputPlaceholder: "Vui lòng nhập lý do...",
+        showCancelButton: true,
+        confirmButtonText: "Gửi yêu cầu",
+      });
+
+      if (reason && reason.trim()) {
+        const user = JSON.parse(localStorage.getItem("user"));
+        const customer_name = order?.address?.fullName || "Khách hàng";
+        const customer_email = user?.email || "no-reply@example.com";
+
+        // Gửi email đến người bán
+        const sellerParams = {
+          customer_name,
+          product_name: orderItem?.productName || "Không xác định",
+          reason,
+          productId: orderItem?.productId,
+          company: "SHOP VANTOI",
+          email: "tovantoi2003@gmail.com", // Email người bán
+          website: `http://localhost:3000/product/${orderItem.productId}`,
+        };
+
+        await emailjs.send(
+          "service_yfcmf9d",
+          "template_j2yfbsu",
+          sellerParams,
+          "xt-Des4pkFzceYTHY"
+        );
+
+        // Gửi phản hồi tự động cho khách hàng
+        const autoReplyParams = {
+          customer_name,
+          email: customer_email,
+          message: `Chúng tôi đã nhận được yêu cầu hoàn trả sản phẩm "${orderItem?.productName}". Chúng tôi sẽ liên hệ với bạn sớm nhất để xử lý.`,
+          type: "Hoàn trả đơn hàng",
+        };
+
+        await emailjs.send(
+          "service_yfcmf9d",
+          "template_nxahxjp",
+          autoReplyParams,
+          "xt-Des4pkFzceYTHY"
+        );
+
+        Swal.fire("Yêu cầu hoàn trả đã được gửi!", "", "success");
+      }
+    } catch (err) {
+      console.error("Lỗi gửi yêu cầu hoàn trả:", err);
+      Swal.fire("Lỗi", "Không thể gửi yêu cầu hoàn trả.", "error");
+    }
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    const { value: reason } = await Swal.fire({
+      title: "Chọn lý do huỷ đơn hàng",
+      input: "select",
+      inputOptions: {
+        "": "Vui lòng chọn lý do",
+        "Không muốn mua nữa": "Không muốn mua nữa",
+        "Tìm thấy giá rẻ hơn": "Tìm thấy giá rẻ hơn",
+        "Thay đổi sản phẩm": "Thay đổi sản phẩm",
+        "Thời gian giao hàng quá lâu": "Thời gian giao hàng quá lâu",
+        Khác: "Khác (vui lòng nhập ở bước sau)",
+      },
+      inputPlaceholder: "Chọn lý do",
+      showCancelButton: true,
+      confirmButtonText: "Tiếp tục",
+    });
+
+    if (!reason) return;
+
+    let finalReason = reason;
+
+    // Nếu chọn "Khác", cho người dùng nhập lý do cụ thể
+    if (reason === "Khác") {
+      const { value: customReason } = await Swal.fire({
+        title: "Nhập lý do huỷ đơn hàng",
+        input: "textarea",
+        inputPlaceholder: "Nhập lý do cụ thể...",
+        showCancelButton: true,
+      });
+
+      if (!customReason || !customReason.trim()) return;
+      finalReason = customReason.trim();
+    }
+
+    // Xác nhận huỷ
+    const confirm = await Swal.fire({
+      title: "Xác nhận huỷ đơn hàng?",
+      text: `Lý do: ${finalReason}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Huỷ đơn",
+      cancelButtonText: "Đóng",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const response = await fetch(
+        "https://localhost:7022/minimal/api/change-status-order-user",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: orderId,
+            status: 4, // Đã huỷ
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Không thể huỷ đơn hàng.");
+
+      Swal.fire("Huỷ đơn hàng thành công!", "", "success");
+
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: 4 } : o))
+      );
+    } catch (err) {
+      Swal.fire(
+        "Lỗi",
+        err.message || "Không thể kết nối đến máy chủ.",
+        "error"
+      );
+    }
+  };
 
   const getOrderStatusText = (status) => {
     switch (status) {
@@ -184,6 +391,55 @@ const OrderManagementPage = () => {
                         {getOrderStatusText(order.status)}
                       </div>
                     </div>
+                  </div>
+                  <div className="mt-2 d-flex gap-2 justify-content-end">
+                    <button
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFeedback(order.id);
+                      }}
+                    >
+                      💬 Phản hồi
+                    </button>
+
+                    {order.status === 3 && (
+                      <button
+                        className="btn btn-outline-warning btn-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReturnOrder(order.id);
+                        }}
+                      >
+                        🔄 Hoàn trả
+                      </button>
+                    )}
+                    {order.status === 3 && (
+                      <button
+                        className="btn btn-outline-primary btn-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const productId = order.orderItems[0]?.productId;
+                          if (productId) {
+                            navigate(`/product/${productId}#review`);
+                          }
+                        }}
+                      >
+                        ⭐ Đánh giá
+                      </button>
+                    )}
+
+                    {(order.status === 0 || order.status === 1) && (
+                      <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCancelOrder(order.id);
+                        }}
+                      >
+                        ❌ Huỷ đơn
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               ))

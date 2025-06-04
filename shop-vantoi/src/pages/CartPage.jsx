@@ -186,7 +186,7 @@ const CartPage = ({ cart, setCart }) => {
         }}
       >
         <center>
-          <p>Giỏ hàng của bạn</p>
+          <p>GIỎ HÀNG CỦA BẠN</p>
         </center>
       </motion.h1>
       {cart.length === 0 ? (

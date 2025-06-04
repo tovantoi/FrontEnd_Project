@@ -144,7 +144,7 @@ const MyAccountPage = () => {
           }}
         >
           <center>
-            <p>Tài khoản cá nhân</p>
+            <p>THÔNG TIN TÀI KHOẢN</p>
           </center>
         </motion.h1>
 
@@ -154,8 +154,9 @@ const MyAccountPage = () => {
               src={
                 formData.imageData
                   ? `data:${formData.imageMimeType};base64,${formData.imageData}`
-                  : formData.avatarImagePath ||
-                    "https://via.placeholder.com/150"
+                  : formData.avatarImagePath?.startsWith("http")
+                  ? formData.avatarImagePath
+                  : `https://i.pravatar.cc/150?u=${user?.id || "guest"}`
               }
               alt="Avatar"
               className="rounded-circle shadow avatar-preview"
