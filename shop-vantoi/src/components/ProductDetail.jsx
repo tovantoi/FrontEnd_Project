@@ -338,23 +338,27 @@ const ProductDetail = ({ addToCart }) => {
             }}
           />
 
-          {/* Ảnh nhỏ cố định */}
-          {/* <div className="d-flex gap-2 mt-3 flex-wrap">
-            {[1, 2, 3, 4].map((i) => (
-              <img
-                key={i}
-                src={`/images/preview${i}.jpg`}
-                alt={`preview-${i}`}
-                className="rounded"
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  objectFit: "cover",
-                  border: "1px solid #ddd",
-                }}
-              />
-            ))}
-          </div> */}
+          {product.productImages && product.productImages.length > 0 && (
+            <div className="d-flex gap-2 mt-3 flex-wrap">
+              {product.productImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img.imageUrl}
+                  alt={`Ảnh phụ ${idx + 1}`}
+                  className="rounded border"
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    objectFit: "cover",
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    setProduct((prev) => ({ ...prev, imagePath: img.imageUrl }))
+                  }
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Thông tin sản phẩm */}

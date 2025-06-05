@@ -30,6 +30,7 @@ const AddProduct = () => {
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState([]);
   const navigate = useNavigate();
+  const [extraImages, setExtraImages] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -74,6 +75,27 @@ const AddProduct = () => {
       reader.readAsDataURL(file);
     }
   };
+  const handleExtraImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64Data = event.target.result;
+        const mimeType = base64Data.split(";")[0].split(":")[1];
+
+        setExtraImages((prev) => [
+          ...prev,
+          {
+            imageData: base64Data.split(",")[1],
+            mimeType: mimeType,
+            preview: base64Data,
+          },
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const handleCategoryIdsChange = (selectedOptions) => {
     // Lấy id của các danh mục được chọn từ `react-select`
@@ -87,25 +109,27 @@ const AddProduct = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const payload = {
       ...formData,
-      categoryIds: formData.categoryIds, // Chỉ gửi categoryIds đã chọn
+      categoryIds: formData.categoryIds, // Danh mục đã chọn
     };
+
     try {
-      // Thêm thông báo "Đang gửi yêu cầu..." trong frontend
       Swal.fire({
-        title: "Đang lấy thông tin sản phẩm...",
+        title: "Đang gửi yêu cầu...",
         width: 600,
         padding: "3em",
         color: "#716add",
         background: "#fff",
         backdrop: `
-          rgba(0,0,123,0.4)
-          url("/assets/loading.png")
-          left top
-          no-repeat
-        `,
+        rgba(0,0,123,0.4)
+        url("/assets/loading.png")
+        left top
+        no-repeat
+      `,
       });
+
       const response = await fetch(
         "https://localhost:7022/minimal/api/create-product",
         {
@@ -118,17 +142,39 @@ const AddProduct = () => {
       );
 
       const result = await response.json();
+
       if (response.ok) {
-        // Hiển thị thông báo thành công
+        const createdProductId = result?.data?.id || result?.id;
+
+        // 🔁 Gửi ảnh phụ nếu có
+        for (const [index, image] of extraImages.entries()) {
+          await fetch(
+            "https://localhost:7022/minimal/api/create-product-image",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                productId: createdProductId,
+                imageUrl: image.imageData,
+                color: formData.color || "default",
+                sortOrder: index + 1,
+              }),
+            }
+          );
+        }
+
         Swal.fire({
           title: "Thêm sản phẩm thành công!",
           text: result.message || "Đã thêm sản phẩm!",
           icon: "success",
           confirmButtonText: "OK",
         });
-        setErrors([]); // Xóa lỗi nếu có
 
-        // Sau khi thông báo thành công, reset form và xóa thông báo sau 3 giây
+        setErrors([]);
+        setExtraImages([]); // Xóa ảnh phụ sau khi thêm xong
+
         setTimeout(() => {
           setFormData({
             productName: "",
@@ -149,11 +195,10 @@ const AddProduct = () => {
             isActive: false,
             categoryIds: [],
           });
-          setMessage(""); // Xóa thông báo sau khi reload
-          setErrors([]); // Xóa lỗi nếu có
-        }, 5000); // Chờ 3 giây trước khi reset form và xóa thông báo
+          setMessage("");
+          setErrors([]);
+        }, 5000);
       } else {
-        // Hiển thị thông báo lỗi
         Swal.fire({
           title: "Thêm sản phẩm thất bại",
           text: result.message || "Vui lòng kiểm tra lại thông tin sản phẩm.",
@@ -164,7 +209,7 @@ const AddProduct = () => {
       }
     } catch (error) {
       Swal.fire({
-        title: "Đã xảy ra lỗi khi gọi Api",
+        title: "Đã xảy ra lỗi khi gọi API",
         text: error.message || "Vui lòng kiểm tra lại server.",
         icon: "error",
         confirmButtonText: "Thử lại",
@@ -173,6 +218,7 @@ const AddProduct = () => {
       console.error(error);
     }
   };
+
   const categoryOptions = categories.map((category) => ({
     value: category.id,
     label: category.name,
@@ -349,6 +395,16 @@ const AddProduct = () => {
             onChange={handleImageUpload}
           />
         </div>
+        <div className="col-md-12">
+          <label className="form-label">Ảnh phụ (có thể chọn nhiều)</label>
+          <input
+            type="file"
+            className="form-control"
+            accept="image/*"
+            multiple
+            onChange={handleExtraImageUpload}
+          />
+        </div>
         {formData.imageData && formData.mimeType && (
           <div className="mb-3">
             <div className="d-flex align-items-center">
@@ -360,6 +416,26 @@ const AddProduct = () => {
                 style={{ width: "150px", height: "150px", objectFit: "cover" }}
               />
               <span className="text-muted">Hình ảnh xem trước</span>
+            </div>
+          </div>
+        )}
+        {extraImages.length > 0 && (
+          <div className="mb-3">
+            <label className="form-label fw-bold">Xem trước ảnh phụ:</label>
+            <div className="d-flex flex-wrap gap-2">
+              {extraImages.map((img, index) => (
+                <img
+                  key={index}
+                  src={img.preview}
+                  alt={`Ảnh phụ ${index + 1}`}
+                  className="img-thumbnail"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                  }}
+                />
+              ))}
             </div>
           </div>
         )}

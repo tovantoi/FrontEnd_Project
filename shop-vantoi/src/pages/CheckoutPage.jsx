@@ -326,6 +326,7 @@ const CheckoutPage = ({ cart, setCart }) => {
         ) + 30000;
 
       if (formData.paymentMethod === "Online") {
+        // PayPal
         const paymentResponse = await fetch(
           "https://localhost:7022/minimal/api/create-payment",
           {
@@ -348,6 +349,25 @@ const CheckoutPage = ({ cart, setCart }) => {
           );
         }
         window.location.href = paymentData.paymentUrl;
+        return;
+      } else if (formData.paymentMethod === "VNPAY") {
+        // VNPAY
+        const paymentRes = await fetch(
+          `https://localhost:7022/api/vnpay/create?orderId=OD${createdOrderId}&amount=${totalPrice}&orderDescription=Thanh toán đơn hàng`,
+          { method: "GET" }
+        );
+
+        if (paymentRes.redirected) {
+          window.location.href = paymentRes.url;
+          return;
+        }
+
+        const paymentUrl = await paymentRes.text();
+        if (!paymentUrl.startsWith("http")) {
+          throw new Error("Không tạo được link thanh toán VNPAY.");
+        }
+
+        window.location.href = paymentUrl;
         return;
       }
 
@@ -573,6 +593,7 @@ const CheckoutPage = ({ cart, setCart }) => {
             </li>
           </ul>
           <h4 className="mt-3">3. Phương thức thanh toán</h4>
+
           <div className="mb-3">
             <input
               type="radio"
@@ -583,6 +604,7 @@ const CheckoutPage = ({ cart, setCart }) => {
             />
             <label className="ms-2">Thanh toán khi nhận hàng (COD)</label>
           </div>
+
           <div className="mb-3">
             <input
               type="radio"
@@ -591,9 +613,18 @@ const CheckoutPage = ({ cart, setCart }) => {
               checked={formData.paymentMethod === "Online"}
               onChange={handleInputChange}
             />
-            <label className="ms-2">
-              Thanh toán thẻ (VNPAY, ATM, VISA, Mastercard,...)
-            </label>
+            <label className="ms-2">Thanh toán qua PayPal</label>
+          </div>
+
+          <div className="mb-3">
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="VNPAY"
+              checked={formData.paymentMethod === "VNPAY"}
+              onChange={handleInputChange}
+            />
+            <label className="ms-2">Thanh toán qua VNPAY (ATM, nội địa)</label>
           </div>
           {/* 🚀 Nút Đặt Hàng */}
           <motion.button
