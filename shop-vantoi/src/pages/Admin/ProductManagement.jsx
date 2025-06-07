@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
+import { FaPlus } from "react-icons/fa";
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -34,63 +35,62 @@ const ProductManagement = () => {
   };
 
   const handleDelete = async (id, productName) => {
-  try {
-    const result = await Swal.fire({
-      title: "Bạn có chắc muốn xóa sản phẩm?",
-      text: `Sản phẩm: ${productName}`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Đồng ý",
-      cancelButtonText: "Hủy",
-    });
+    try {
+      const result = await Swal.fire({
+        title: "Bạn có chắc muốn xóa sản phẩm?",
+        text: `Sản phẩm: ${productName}`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Đồng ý",
+        cancelButtonText: "Hủy",
+      });
 
-    if (!result.isConfirmed) return;
+      if (!result.isConfirmed) return;
 
-    const response = await fetch(
-      `https://localhost:7022/minimal/api/delete-product?id=${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await fetch(
+        `https://localhost:7022/minimal/api/delete-product?id=${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json(); // 🔄 Lấy response JSON (chứa message nếu có)
+
+      if (!response.ok) {
+        // ❌ Hiển thị thông báo lỗi rõ ràng từ backend
+        await Swal.fire({
+          title: "Không thể xóa!",
+          text:
+            data?.message ||
+            "Không thể xóa sản phẩm vì đang được sử dụng trong đơn hàng.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        return;
       }
-    );
 
-    const data = await response.json(); // 🔄 Lấy response JSON (chứa message nếu có)
+      // ✅ Nếu thành công
+      setProducts(products.filter((product) => product.id !== id));
 
-    if (!response.ok) {
-      // ❌ Hiển thị thông báo lỗi rõ ràng từ backend
       await Swal.fire({
-        title: "Không thể xóa!",
-        text:
-          data?.message ||
-          "Không thể xóa sản phẩm vì đang được sử dụng trong đơn hàng.",
+        title: "Thành công!",
+        text: "Sản phẩm đã được xóa.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    } catch (err) {
+      // ⚠️ Bắt lỗi hệ thống hoặc mạng
+      await Swal.fire({
+        title: "Lỗi!",
+        text: err.message || "Đã xảy ra lỗi khi xóa sản phẩm.",
         icon: "error",
         confirmButtonText: "OK",
       });
-      return;
     }
-
-    // ✅ Nếu thành công
-    setProducts(products.filter((product) => product.id !== id));
-
-    await Swal.fire({
-      title: "Thành công!",
-      text: "Sản phẩm đã được xóa.",
-      icon: "success",
-      confirmButtonText: "OK",
-    });
-  } catch (err) {
-    // ⚠️ Bắt lỗi hệ thống hoặc mạng
-    await Swal.fire({
-      title: "Lỗi!",
-      text: err.message || "Đã xảy ra lỗi khi xóa sản phẩm.",
-      icon: "error",
-      confirmButtonText: "OK",
-    });
-  }
-};
-
+  };
 
   return (
     <motion.div
@@ -219,6 +219,22 @@ const ProductManagement = () => {
                   >
                     Chi tiết
                   </motion.button>
+                  <motion.button
+                    className="btn btn-warning me-2 text-dark fw-bold"
+                    onClick={() =>
+                      navigate(`/admin/products/${product.id}/add-images`)
+                    }
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{
+                      padding: "6px 12px",
+                      fontSize: "0.9rem",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    ➕ Ảnh phụ
+                  </motion.button>
+
                   <motion.button
                     className="btn btn-warning me-2"
                     onClick={() =>

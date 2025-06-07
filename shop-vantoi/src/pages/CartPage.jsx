@@ -224,23 +224,34 @@ const CartPage = ({ cart, setCart }) => {
                       src={
                         item.imagePath && item.imagePath.trim() !== ""
                           ? item.imagePath
-                          : "https://via.placeholder.com/400"
+                          : item.productImages?.find(
+                              (img) => img.color === item.selectedColor
+                            )?.imageUrl || "https://via.placeholder.com/400"
                       }
                       alt={item.productName}
                       className="card-img-top img-fluid rounded"
-                      style={{ height: "180px", objectFit: "cover" }}
+                      style={{
+                        height: "180px",
+                        objectFit: "cover",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => navigate(`/product/${item.id}`)} // ✅ chuyển hướng tới trang chi tiết
                     />
                   </div>
                   <div className="card-body text-center">
                     <h5 className="card-title">{item.productName}</h5>
 
                     {/* Thêm màu sắc và kích cỡ */}
-                    {/* <p className="text-muted small mb-1">
-                      Màu:{" "}
-                      <span className="fw-semibold">
-                        {item.selectedColor || "Không có"}
-                      </span>
-                    </p> */}
+                    {/* Màu đã chọn */}
+                    {item.selectedColor && (
+                      <p className="text-muted small mb-1">
+                        Màu:{" "}
+                        <span className="fw-semibold">
+                          {item.selectedColor}
+                        </span>
+                      </p>
+                    )}
+
                     <p className="text-muted small mb-2">
                       Kích cỡ:{" "}
                       <span className="fw-semibold">

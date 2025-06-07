@@ -25,18 +25,6 @@ const ProductDetail = ({ addToCart }) => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [showSizeChart, setShowSizeChart] = useState(false);
 
-  // const colorOptions = [
-  //   { label: "Anime01 Đen", image: "/images/color1.jpg" },
-  //   { label: "Anime01 Trắng", image: "/images/color2.jpg" },
-  //   { label: "TS02-Xám", image: "/images/color3.jpg" },
-  //   { label: "TS02-Đen", image: "/images/color4.jpg" },
-  //   { label: "TOM-Đen", image: "/images/color5.jpg" },
-  //   { label: "TOM-Trắng", image: "/images/color6.jpg" },
-  //   { label: "FIRE-Xám", image: "/images/color7.jpg" },
-  //   { label: "FIRE-Đen", image: "/images/color8.jpg" },
-  //   { label: "FIRE-Trắng", image: "/images/color9.jpg" },
-  // ];
-
   const sizeOptions = [
     { label: "M (Dưới 46Kg)" },
     { label: "L (46-65Kg)" },
@@ -108,6 +96,9 @@ const ProductDetail = ({ addToCart }) => {
       setPreviewImage(URL.createObjectURL(file));
     }
   };
+  const selectedImage = product.productImages?.find(
+    (img) => img.imageUrl === product.imagePath
+  );
 
   const handleVirtualTryOn = async () => {
     if (!userImage) {
@@ -288,6 +279,11 @@ const ProductDetail = ({ addToCart }) => {
       });
     }
   };
+  const uniqueColors = [
+    ...new Map(
+      (product.productImages || []).map((img) => [img.color, img])
+    ).values(),
+  ];
 
   const getDeliveryDate = () => {
     const today = new Date();
@@ -352,9 +348,13 @@ const ProductDetail = ({ addToCart }) => {
                     objectFit: "cover",
                     cursor: "pointer",
                   }}
-                  onClick={() =>
-                    setProduct((prev) => ({ ...prev, imagePath: img.imageUrl }))
-                  }
+                  onClick={() => {
+                    setProduct((prev) => ({
+                      ...prev,
+                      imagePath: img.imageUrl,
+                    }));
+                    setSelectedColor(img.color); // ✅ Gán đúng chỗ
+                  }}
                 />
               ))}
             </div>
@@ -408,32 +408,49 @@ const ProductDetail = ({ addToCart }) => {
           </div>
 
           {/* Màu sắc chọn */}
-          {/* <div className="mb-4">
-            <h5 className="fw-bold">Màu Sắc</h5>
-            <div className="d-flex flex-wrap gap-2">
-              {colorOptions.map((color, index) => (
-                <div
-                  key={index}
-                  className={`color-option ${
-                    selectedColor === index ? "active" : ""
-                  }`}
-                  onClick={() => setSelectedColor(index)}
-                >
-                  <img
-                    src={color.image}
-                    alt={color.label}
+          {uniqueColors.length > 0 && (
+            <div className="mb-4">
+              <h5 className="fw-bold">Màu sắc</h5>
+              <div className="d-flex flex-wrap gap-2">
+                {uniqueColors.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`color-option ${
+                      item.imageUrl === product.imagePath
+                        ? "border border-primary"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      setProduct((prev) => ({
+                        ...prev,
+                        imagePath: item.imageUrl,
+                      }))
+                    }
                     style={{
-                      width: "50px",
-                      height: "50px",
-                      objectFit: "cover",
+                      cursor: "pointer",
                       borderRadius: "8px",
+                      overflow: "hidden",
+                      width: "60px",
+                      textAlign: "center",
+                      fontSize: "12px",
                     }}
-                  />
-                  <div className="text-center small mt-1">{color.label}</div>
-                </div>
-              ))}
+                  >
+                    <img
+                      src={item.imageUrl}
+                      alt={item.color}
+                      style={{
+                        width: "100%",
+                        height: "60px",
+                        objectFit: "cover",
+                        border: "1px solid #ccc",
+                      }}
+                    />
+                    <div className="text-muted small">{item.color}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div> */}
+          )}
 
           {/* Size */}
           <div className="mb-4">
@@ -501,16 +518,23 @@ const ProductDetail = ({ addToCart }) => {
               className="btn btn-outline-danger flex-fill"
               whileHover={{ scale: 1.05 }}
               onClick={() => {
-                // if (selectedColor === null || selectedSize === null) {
-                //   Swal.fire("Bạn chưa chọn màu/size", "", "warning");
-                //   return;
-                // }
+                if (selectedColor === null || selectedSize === null) {
+                  Swal.fire("Bạn chưa chọn màu/size", "", "warning");
+                  return;
+                }
+
+                const selectedImage = product.productImages?.find(
+                  (img) => img.imageUrl === product.imagePath
+                );
+
                 addToCart({
                   ...product,
                   quantity,
-                  // selectedColor: colorOptions[selectedColor]?.label,
+                  selectedColor:
+                    selectedImage?.color || product.color || "default",
                   selectedSize: sizeOptions[selectedSize]?.label,
                 });
+
                 Swal.fire("Đã thêm vào giỏ hàng", "", "success");
               }}
             >

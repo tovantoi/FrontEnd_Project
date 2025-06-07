@@ -12,7 +12,6 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import BlogPage from "./pages/BlogPage";
 import AutoReplyEmailPage from "./pages/AutoReplyEmailPage";
-import PaymentSuccess from "./pages/PaymentSuccess";
 import RegisterPage from "./pages/RegisterPage";
 import MyAccountPage from "./pages/MyAccountPage";
 import ProductPage from "./pages/ProductPage";
@@ -29,6 +28,7 @@ import ProductManagement from "./pages/Admin/ProductManagement";
 import AddProduct from "./pages/Admin/AddProduct";
 import CustomerManagement from "./pages/Admin/CustomerManagement";
 import CategoryManagement from "./pages/Admin/CategoryManagement";
+import AddProductImage from "./pages/Admin/AddProductImage";
 import CouponManagement from "./pages/Admin/CouponManagement";
 import CategoryProductsPage from "./pages/Admin/CategoryProductsPage";
 import AddCategory from "./pages/Admin/AddCategory";
@@ -58,6 +58,7 @@ import PrivacyPolicy from "./pages-footer/PrivacyPolicy";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import AdminLayout from "./components/AdminLayout";
 import OrderManagementPage from "./pages/OrderManagementPage";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import FallingEffect from "./components/FallingEffect";
 import NotFoundPage from "./components/NotFoundPage";
 import AboutUs from "./home-content/AboutUs";
@@ -211,6 +212,7 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
         <Route path="/payment-guide" element={<PaymentGuide />} />
         <Route path="/exchange-policy" element={<ExchangePolicy />} />
         <Route path="/purchase-guide" element={<PurchaseGuide />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route
           path="/request-otp"
           element={<RequestOtpPage setEmailForOtp={setEmailForOtp} />}
@@ -245,6 +247,11 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/products" element={<ProductManagement />} />
           <Route path="/admin/add-product" element={<AddProduct />} />
+          <Route
+            path="/admin/products/:productId/add-images"
+            element={<AddProductImage />}
+          />
+
           <Route
             path="/admin/product/detail/:id"
             element={<AdminProductDetail />}

@@ -202,3 +202,7 @@ textarea.form-control {
 .review-section .p-3:hover {
   background-color: #f9f9f9;
 }
+.color-option:hover {
+  transform: scale(1.05);
+  transition: 0.3s;
+}

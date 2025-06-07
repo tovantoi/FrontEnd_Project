@@ -215,7 +215,15 @@ const CheckoutPage = ({ cart, setCart }) => {
       );
 
       const totalBeforeDiscount = totalProductPrice + shippingFee;
-      const totalPrice = Math.max(totalBeforeDiscount - discountAmount, 0);
+      const shouldIncludeShipping =
+        formData.paymentMethod === "CASH" || formData.paymentMethod === "";
+
+      const totalPrice = Math.max(
+        totalProductPrice +
+          (shouldIncludeShipping ? shippingFee : 0) -
+          discountAmount,
+        0
+      );
 
       const response = await fetch(
         "https://localhost:7022/minimal/api/send-order-email",
@@ -318,12 +326,15 @@ const CheckoutPage = ({ cart, setCart }) => {
         throw new Error(orderData.message);
 
       const createdOrderId = orderData.query?.id;
+      const shouldIncludeShipping =
+        formData.paymentMethod === "CASH" || formData.paymentMethod === "";
+
       const totalPrice =
         cart.reduce(
           (total, item) =>
             total + (item.discountPrice || item.regularPrice) * item.quantity,
           0
-        ) + 30000;
+        ) + (shouldIncludeShipping ? 30000 : 0);
 
       if (formData.paymentMethod === "Online") {
         // PayPal
@@ -350,24 +361,63 @@ const CheckoutPage = ({ cart, setCart }) => {
         }
         window.location.href = paymentData.paymentUrl;
         return;
-      } else if (formData.paymentMethod === "VNPAY") {
-        // VNPAY
-        const paymentRes = await fetch(
-          `https://localhost:7022/api/vnpay/create?orderId=OD${createdOrderId}&amount=${totalPrice}&orderDescription=Thanh toán đơn hàng`,
-          { method: "GET" }
+      } else if (formData.paymentMethod === "PAYOS") {
+        const orderItems = cart.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+          productName: item.productName,
+          discountPrice: item.discountPrice,
+          //imagePath: item.imagePath,
+          product: null, // nếu không cần thiết ở BE thì có thể bỏ
+        }));
+
+        const payosResponse = await fetch(
+          "https://localhost:7022/api/payos/create",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: createdOrderId,
+              amount: totalPrice,
+              description: "Thanh toán đơn hàng",
+              returnUrl:
+                "https://6d25-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/payment-success", // thay đúng domain thật
+              cancelUrl:
+                "https://6d25-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/payment-cancel",
+              webhookUrl:
+                "https://eed9-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/api/payos/ipn",
+              buyerName:
+                formData.fullName ||
+                user.fullName ||
+                `${user.lastName} ${user.firstName}`,
+              buyerEmail: user.email,
+              buyerPhone: formData.phone || "0123456789", // fallback nếu thiếu
+              items: cart.map((item) => ({
+                productId: item.id,
+                productName: item.productName,
+                price: parseInt(item.discountPrice || item.regularPrice || 0),
+                quantity: item.quantity,
+                discountPrice: item.discountPrice,
+                product: null,
+              })),
+            }),
+          }
         );
 
-        if (paymentRes.redirected) {
-          window.location.href = paymentRes.url;
-          return;
+        if (!payosResponse.ok) {
+          const errorText = await payosResponse.text();
+          throw new Error(
+            "Không tạo được link thanh toán PayOS. Chi tiết: " + errorText
+          );
         }
 
-        const paymentUrl = await paymentRes.text();
-        if (!paymentUrl.startsWith("http")) {
-          throw new Error("Không tạo được link thanh toán VNPAY.");
+        const payosData = await payosResponse.json();
+        if (!payosData || !payosData.checkoutUrl) {
+          throw new Error("Không nhận được link thanh toán PayOS.");
         }
+        console.log("🧾 orderItems gửi lên BE", orderItems);
 
-        window.location.href = paymentUrl;
+        window.location.href = payosData.checkoutUrl;
         return;
       }
 
@@ -620,12 +670,13 @@ const CheckoutPage = ({ cart, setCart }) => {
             <input
               type="radio"
               name="paymentMethod"
-              value="VNPAY"
-              checked={formData.paymentMethod === "VNPAY"}
+              value="PAYOS"
+              checked={formData.paymentMethod === "PAYOS"}
               onChange={handleInputChange}
             />
-            <label className="ms-2">Thanh toán qua VNPAY (ATM, nội địa)</label>
+            <label className="ms-2">Thanh toán qua PayOS</label>
           </div>
+
           {/* 🚀 Nút Đặt Hàng */}
           <motion.button
             className="btn btn-success mt-3 w-100"
