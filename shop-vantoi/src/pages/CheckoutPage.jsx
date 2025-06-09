@@ -381,7 +381,7 @@ const CheckoutPage = ({ cart, setCart }) => {
               amount: totalPrice,
               description: "Thanh toán đơn hàng",
               returnUrl:
-                "https://6d25-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/payment-success", // thay đúng domain thật
+                "https://6d25-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/payment-success",
               cancelUrl:
                 "https://6d25-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/payment-cancel",
               webhookUrl:
@@ -391,7 +391,7 @@ const CheckoutPage = ({ cart, setCart }) => {
                 user.fullName ||
                 `${user.lastName} ${user.firstName}`,
               buyerEmail: user.email,
-              buyerPhone: formData.phone || "0123456789", // fallback nếu thiếu
+              buyerPhone: formData.phone || "Phone number NotFound!",
               items: cart.map((item) => ({
                 productId: item.id,
                 productName: item.productName,

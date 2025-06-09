@@ -59,6 +59,7 @@ import ChangePasswordPage from "./pages/ChangePasswordPage";
 import AdminLayout from "./components/AdminLayout";
 import OrderManagementPage from "./pages/OrderManagementPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 import FallingEffect from "./components/FallingEffect";
 import NotFoundPage from "./components/NotFoundPage";
 import AboutUs from "./home-content/AboutUs";
@@ -112,6 +113,7 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
     "/exchange-policy",
     "/purchase-guide",
     "/payment-success",
+    "/payment-cancel",
     "/about-us",
     "/collection",
     "/fashion-tip-1",
@@ -213,6 +215,7 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
         <Route path="/exchange-policy" element={<ExchangePolicy />} />
         <Route path="/purchase-guide" element={<PurchaseGuide />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-cancel" element={<PaymentCancel />} />
         <Route
           path="/request-otp"
           element={<RequestOtpPage setEmailForOtp={setEmailForOtp} />}
