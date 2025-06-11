@@ -1,7 +1,7 @@
 body {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  background-color: #cfd8dc;
+  background-color: #f5f5f7;
 }
 /* Header */
 header header {
@@ -175,7 +175,7 @@ footer a:hover {
 }
 
 footer .fw-bold {
-  color: #3b2d16; /* Điểm nhấn với màu vàng cam nhạt */
+  color: orange; /* Điểm nhấn với màu vàng cam nhạt */
 }
 
 /* Center the login page */
@@ -454,4 +454,43 @@ div::-webkit-scrollbar-thumb {
 }
 div::-webkit-scrollbar-thumb:hover {
   background-color: #999;
+}
+.container-custom {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.section-box {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 30px 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 40px;
+}
+/* Section theo từng tone riêng biệt */
+.fashion-corner {
+  background-color: #f0f8ff;
+  border-radius: 10px;
+  padding: 30px 20px;
+  margin-bottom: 40px;
+}
+
+.highlight-collection {
+  background-color: #fff8e1;
+  border-radius: 10px;
+  padding: 30px 20px;
+  margin-bottom: 40px;
+}
+
+.lifestyle-tips {
+  background-color: #e8f5e9;
+  border-radius: 10px;
+  padding: 30px 20px;
+  margin-bottom: 40px;
+}
+
+/* Tăng tương phản ở footer */
+footer {
+  background-color: #37474f !important;
+  color: #ffffff !important;
 }

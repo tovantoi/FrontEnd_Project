@@ -36,15 +36,18 @@ const RegisterPage = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        setMessage(data.message || "Đăng ký thành công.");
-        setError("");
+        Swal.fire(
+          "Thành công",
+          data.message || "Đăng ký thành công.",
+          "success"
+        );
         setStep(2);
       } else {
-        setError(data.message || "Đăng ký thất bại.");
+        Swal.fire("Lỗi", data.message || "Đăng ký thất bại.", "error");
         setMessage("");
       }
     } catch {
-      setError("Đã xảy ra lỗi. Vui lòng thử lại.");
+      Swal.fire("Lỗi", "Đã xảy ra lỗi. Vui lòng thử lại.", "error");
     }
   };
 
@@ -61,13 +64,16 @@ const RegisterPage = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        setMessage(data.message || "Xác thực OTP thành công!");
-        setTimeout(() => navigate("/login"), 1000);
+        Swal.fire(
+          "Thành công",
+          data.message || "Xác thực thành công!",
+          "success"
+        ).then(() => navigate("/login"));
       } else {
-        setError(data.message || "Xác thực OTP thất bại.");
+        Swal.fire("Lỗi", data.message || "Xác thực thất bại.", "error");
       }
     } catch {
-      setError("Đã xảy ra lỗi. Vui lòng thử lại.");
+      Swal.fire("Lỗi", "Đã xảy ra lỗi. Vui lòng thử lại.", "error");
     }
   };
 
@@ -157,7 +163,7 @@ const RegisterPage = () => {
                 margin: "0 auto",
               }}
             >
-              Thời trang là chất VANTOI là gu
+              Thời trang là chất<br></br> VANTOI là gu
             </p>
           </div>
 

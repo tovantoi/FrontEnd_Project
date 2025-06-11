@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import "../pages/AdminCss/Categorylist.css";
@@ -138,11 +142,11 @@ const CategorySearch = () => {
   };
 
   return (
-    <div className="container py-5">
+    <div className="container-xl py-5 px-3 px-md-5">
       {error && <div className="alert alert-danger text-center">{error}</div>}
 
       {/* Danh Mục */}
-      <section className="mb-5">
+      <section className="category-slide-wrapper-section mb-5">
         <motion.h1
           className="product-name-title mb-3"
           initial={{ opacity: 0, y: -20 }}
@@ -154,32 +158,50 @@ const CategorySearch = () => {
           }}
         >
           <center>
-            <p>Danh mục sản phẩm</p>
+            <p>KHÔNG NGẠI HẾT ĐỒ - CHỈ NGẠI HẾT TIỀN</p>
           </center>
         </motion.h1>
-        <div className="row g-4">
+        <Swiper
+          modules={[Navigation, Autoplay]}
+          navigation
+          loop={true}
+          autoplay={{
+            delay: 5000, // 5 giây
+            disableOnInteraction: false, // vẫn tự chạy sau khi người dùng tương tác
+          }}
+          spaceBetween={20}
+          breakpoints={{
+            0: { slidesPerView: 2 },
+            576: { slidesPerView: 3 },
+            768: { slidesPerView: 4 },
+            992: { slidesPerView: 5 },
+          }}
+        >
           {categories.map((category) => (
-            <div className="col-6 col-md-3" key={category.id}>
-              <motion.div
-                className="card h-100 shadow-sm category-card card-hover-effect"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => handleCategoryClick(category.id)}
-                style={{ cursor: "pointer" }}
-              >
-                <img
-                  src={category.imagePath || "https://via.placeholder.com/400"}
-                  alt={category.productName}
-                  className="card-img-top"
-                  style={{ height: "180px", objectFit: "cover" }}
-                />
-                <div className="card-body text-center">
-                  <h5 className="card-title mb-0">{category.name}</h5>
-                </div>
-              </motion.div>
-            </div>
+            <SwiperSlide key={category.id}>
+              <div className="category-slide-wrapper">
+                <motion.div
+                  className="card h-100 category-card card-hover-effect"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={() => handleCategoryClick(category.id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={
+                      category.imagePath || "https://via.placeholder.com/400"
+                    }
+                    alt={category.productName}
+                    className="card-img-top"
+                  />
+                  <div className="card-body text-center">
+                    <h5 className="card-title mb-0">{category.name}</h5>
+                  </div>
+                </motion.div>
+              </div>
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
       </section>
 
       {/* Sản phẩm */}
@@ -224,6 +246,11 @@ const CategorySearch = () => {
                         %
                       </div>
                     )}
+                  <div className="product-hover-overlay">
+                    <button className="btn btn-sm btn-primary">
+                      Xem chi tiết
+                    </button>
+                  </div>
                 </div>
 
                 {/* Nội dung sản phẩm */}
@@ -237,7 +264,7 @@ const CategorySearch = () => {
                   </h6>
 
                   {/* ⭐ Rating + Đã bán */}
-                  <div className="d-flex justify-content-center align-items-center gap-1 mb-2 flex-wrap small">
+                  <div className="d-flex flex-wrap justify-content-center align-items-center mb-2 gap-2 small text-muted">
                     {productRatings[product.id] ? (
                       <>
                         <span className="text-warning fw-bold">
@@ -350,27 +377,6 @@ const CategorySearch = () => {
           ))}
         </div>
       </section>
-
-      {/* Bộ sưu tập nổi bật */}
-      {/* <section className="mb-5">
-        <h2 className="text-center mb-4 fw-bold">Bộ Sưu Tập Nổi Bật</h2>
-        <div className="row g-4">
-          {[
-            { title: "Summer Vibes 2025", img: "/assets/social-media.png" },
-            { title: "Street Style Hàn Quốc", img: "/assets/instagram.png" },
-            { title: "Minimal Black & White", img: "/assets/facebook.png" },
-          ].map((item, idx) => (
-            <div className="col-12 col-md-4 text-center" key={idx}>
-              <img
-                src={item.img}
-                className="img-fluid rounded shadow-sm"
-                style={{ height: "220px", objectFit: "cover" }}
-              />
-              <h5 className="mt-3">{item.title}</h5>
-            </div>
-          ))}
-        </div>
-      </section> */}
 
       {/* Giới thiệu về shop */}
       <section className="about-store my-5">
@@ -529,23 +535,6 @@ const CategorySearch = () => {
           ))}
         </div>
       </section>
-      <br></br>
-      <br></br>
-      <br></br>
-      <motion.h3
-        className="product-name-title mb-3"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        whileHover={{
-          scale: 1.05,
-          textShadow: "0px 2px 10px rgba(0, 0, 0, 0.2)",
-        }}
-      >
-        <center>
-          <p>KHÔNG NGẠI HẾT ĐỒ - CHỈ NGẠI HẾT TIỀN</p>
-        </center>
-      </motion.h3>
     </div>
   );
 };

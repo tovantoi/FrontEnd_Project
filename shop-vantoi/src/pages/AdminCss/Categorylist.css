@@ -29,3 +29,128 @@
 .card-hover-effect:hover img {
   transform: scale(1.1);
 }
+.category-card img {
+  border-radius: 0.75rem;
+  transition: transform 0.4s ease;
+}
+.category-card:hover img {
+  transform: scale(1.05);
+}
+.category-card h5 {
+  font-weight: 600;
+  font-size: 1rem;
+}
+.product-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+.product-hover-overlay {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.product-card:hover .product-hover-overlay {
+  opacity: 1;
+}
+.container-custom {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.category-card {
+  border: none;
+  transition: all 0.3s;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.category-card:hover img {
+  transform: scale(1.05);
+  filter: brightness(90%);
+}
+.product-card .card-title {
+  font-size: 1rem;
+  min-height: 40px;
+}
+
+.product-card .price-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.swiper-button-next,
+.swiper-button-prev {
+  color: #1e88e5; /* Màu mũi tên điều hướng */
+}
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+}
+/* Wrapper để các slide đều nhau */
+.category-slide-wrapper {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+/* Card luôn có chiều cao bằng nhau */
+.category-card {
+  width: 180px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  transition: transform 0.3s ease;
+}
+
+.category-card img {
+  height: 160px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.category-card .card-body {
+  flex-grow: 1;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.swiper {
+  padding-bottom: 20px;
+}
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+}
+.container-custom-no-padding {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.category-slide-wrapper-section {
+  background-color: #f9f9f9;
+  padding: 40px 0;
+}
+
+.swiper {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+}

@@ -38,6 +38,7 @@
     "stream-chat-expo": "^6.0.1",
     "stream-chat-react": "^12.8.1",
     "sweetalert2": "^11.21.0",
+    "swiper": "^11.2.8",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5",
     "xlsx-style": "^0.8.13"

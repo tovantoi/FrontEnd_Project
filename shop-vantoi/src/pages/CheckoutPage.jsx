@@ -202,29 +202,12 @@ const CheckoutPage = ({ cart, setCart }) => {
     cart,
     orderCode,
     couponCode = null,
-    discountAmount = 0
+    discountAmount = 0,
+    shippingFee = 0,
+    totalBeforeDiscount = 0,
+    totalPrice = 0
   ) => {
     try {
-      const shippingFee = 30000;
-
-      const totalProductPrice = cart.reduce(
-        (total, item) =>
-          total +
-          (item.discountPrice || item.regularPrice || 0) * (item.quantity || 0),
-        0
-      );
-
-      const totalBeforeDiscount = totalProductPrice + shippingFee;
-      const shouldIncludeShipping =
-        formData.paymentMethod === "CASH" || formData.paymentMethod === "";
-
-      const totalPrice = Math.max(
-        totalProductPrice +
-          (shouldIncludeShipping ? shippingFee : 0) -
-          discountAmount,
-        0
-      );
-
       const response = await fetch(
         "https://localhost:7022/minimal/api/send-order-email",
         {
@@ -328,14 +311,17 @@ const CheckoutPage = ({ cart, setCart }) => {
       const createdOrderId = orderData.query?.id;
       const shouldIncludeShipping =
         formData.paymentMethod === "CASH" || formData.paymentMethod === "";
+      const shippingFee = shouldIncludeShipping ? 30000 : 0;
 
-      const totalPrice =
-        cart.reduce(
-          (total, item) =>
-            total + (item.discountPrice || item.regularPrice) * item.quantity,
-          0
-        ) + (shouldIncludeShipping ? 30000 : 0);
+      const totalProductPrice = cart.reduce(
+        (total, item) =>
+          total +
+          (item.discountPrice || item.regularPrice || 0) * item.quantity,
+        0
+      );
 
+      const totalBeforeDiscount = totalProductPrice + shippingFee;
+      const totalPrice = Math.max(totalBeforeDiscount - discountAmount, 0);
       if (formData.paymentMethod === "Online") {
         // PayPal
         const paymentResponse = await fetch(
@@ -444,7 +430,10 @@ const CheckoutPage = ({ cart, setCart }) => {
             cart,
             `OD${createdOrderId}`,
             couponCode,
-            discountAmount
+            discountAmount,
+            shippingFee,
+            totalBeforeDiscount,
+            totalPrice
           );
 
           navigate("/my-orders");

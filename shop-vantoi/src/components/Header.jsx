@@ -239,6 +239,18 @@ const Header = ({ cart }) => {
 
         <nav className="d-none d-md-flex">
           <ul className="nav">
+            <li className="nav-item" key="home">
+              <Link
+                to="/"
+                className={`nav-link ${
+                  activeItem === "/" ? "active fw-bold text-primary" : ""
+                }`}
+                onClick={() => handleMenuClick("home")}
+              >
+                Trang chủ
+              </Link>
+            </li>
+
             {/* Các mục dùng map */}
             {/* Menu xổ xuống cho Danh mục */}
             <li

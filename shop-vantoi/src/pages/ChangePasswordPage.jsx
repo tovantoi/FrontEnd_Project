@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 const ChangePasswordPage = () => {
   const [formData, setFormData] = useState({
@@ -67,7 +68,20 @@ const ChangePasswordPage = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Thay đổi mật khẩu</h2>
+      <motion.h1
+        className="product-name-title mb-3"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        whileHover={{
+          scale: 1.05,
+          textShadow: "0px 2px 10px rgba(0, 0, 0, 0.2)",
+        }}
+      >
+        <center>
+          <p>THAY ĐỔI MẬT KHẨU</p>
+        </center>
+      </motion.h1>
       <form onSubmit={handleChangePassword} className="mt-3">
         {error && <div className="alert alert-danger">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}

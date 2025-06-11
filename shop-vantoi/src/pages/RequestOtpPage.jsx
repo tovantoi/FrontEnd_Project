@@ -61,7 +61,7 @@ const RequestOtpPage = () => {
         }}
       >
         <center>
-          <p>HÃY NHẬP MÃ "OTP"</p>
+          <p>NHẬP EMAIL CỦA BẠN ĐỂ NHẬN MÃ "OTP"</p>
         </center>
       </motion.h1>
       <form onSubmit={handleRequestOtp} className="mt-3">

@@ -24,6 +24,7 @@ const ProductDetail = ({ addToCart }) => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [showSizeChart, setShowSizeChart] = useState(false);
+  const [showTryOnModal, setShowTryOnModal] = useState(false);
 
   const sizeOptions = [
     { label: "M (Dưới 46Kg)" },
@@ -420,12 +421,13 @@ const ProductDetail = ({ addToCart }) => {
                         ? "border border-primary"
                         : ""
                     }`}
-                    onClick={() =>
+                    onClick={() => {
+                      setSelectedColor(item.color); // ✅ Chọn màu
                       setProduct((prev) => ({
                         ...prev,
                         imagePath: item.imageUrl,
-                      }))
-                    }
+                      }));
+                    }}
                     style={{
                       cursor: "pointer",
                       borderRadius: "8px",
@@ -518,8 +520,17 @@ const ProductDetail = ({ addToCart }) => {
               className="btn btn-outline-danger flex-fill"
               whileHover={{ scale: 1.05 }}
               onClick={() => {
-                if (selectedColor === null || selectedSize === null) {
-                  Swal.fire("Bạn chưa chọn màu/size", "", "warning");
+                const imageToUse = product.productImages?.find(
+                  (img) => img.imageUrl === product.imagePath
+                );
+                const finalColor =
+                  selectedColor ||
+                  imageToUse?.color ||
+                  product.color ||
+                  "Không xác định";
+
+                if (selectedSize === null) {
+                  Swal.fire("Bạn chưa chọn size", "", "warning");
                   return;
                 }
 
@@ -530,8 +541,7 @@ const ProductDetail = ({ addToCart }) => {
                 addToCart({
                   ...product,
                   quantity,
-                  selectedColor:
-                    selectedImage?.color || product.color || "default",
+                  selectedColor: finalColor,
                   selectedSize: sizeOptions[selectedSize]?.label,
                 });
 
@@ -540,7 +550,13 @@ const ProductDetail = ({ addToCart }) => {
             >
               🛒 Thêm vào giỏ hàng
             </motion.button>
-
+            <motion.button
+              className="btn btn-secondary flex-fill"
+              whileHover={{ scale: 1.05 }}
+              onClick={() => setShowTryOnModal(true)} // Mở khung nổi
+            >
+              🧥 Thử đồ
+            </motion.button>
             <motion.button
               className="btn btn-danger flex-fill"
               whileHover={{ scale: 1.05 }}
@@ -573,83 +589,61 @@ const ProductDetail = ({ addToCart }) => {
       {/* Chi tiết sản phẩm */}
       {/* Chi tiết sản phẩm */}
       <div className="product-detail-specs mt-5 p-4 bg-white rounded-3 shadow-sm">
-        <h3 className="fw-bold mb-4 border-bottom pb-2">Chi tiết sản phẩm</h3>
+        <h3 className="product-section-title mb-4">📋 Chi tiết sản phẩm</h3>
         <div className="row">
           <div className="col-md-6">
-            <ul className="list-unstyled">
-              <li className="spec-item">
-                <span className="spec-label">Thương hiệu:</span>
-                <span className="spec-value">
-                  {product.brand || "Đang cập nhật"}
+            {[
+              { icon: "🏷️", label: "Thương hiệu", value: product.brand },
+              { icon: "🧵", label: "Chất liệu", value: product.material },
+              { icon: "🌈", label: "Màu sắc", value: product.color },
+              { icon: "📍", label: "Xuất xứ", value: product.origin },
+              {
+                icon: "🏭",
+                label: "Nhà sản xuất",
+                value: product.manufacturer,
+              },
+            ].map((item, index) => (
+              <div className="spec-item-card" key={index}>
+                <span className="spec-label">
+                  {item.icon} {item.label}:
                 </span>
-              </li>
-              <li className="spec-item">
-                <span className="spec-label">Chất liệu:</span>
                 <span className="spec-value">
-                  {product.material || "Đang cập nhật"}
+                  {item.value || "Đang cập nhật"}
                 </span>
-              </li>
-              <li className="spec-item">
-                <span className="spec-label">Màu sắc:</span>
-                <span className="spec-value">
-                  {product.color || "Đang cập nhật"}
-                </span>
-              </li>
-              <li className="spec-item">
-                <span className="spec-label">Xuất xứ:</span>
-                <span className="spec-value">
-                  {product.origin || "Đang cập nhật"}
-                </span>
-              </li>
-              <li className="spec-item">
-                <span className="spec-label">Nhà sản xuất:</span>
-                <span className="spec-value">
-                  {product.manufacturer || "Đang cập nhật"}
-                </span>
-              </li>
-            </ul>
+              </div>
+            ))}
           </div>
+
           <div className="col-md-6">
-            <ul className="list-unstyled">
-              <li className="spec-item">
-                <span className="spec-label">Giới tính phù hợp:</span>
-                <span className="spec-value">
-                  {product.gender || "Đang cập nhật"}
+            {[
+              { icon: "🚻", label: "Giới tính phù hợp", value: product.gender },
+              { icon: "📦", label: "Đóng gói", value: product.packaging },
+              { icon: "🔖", label: "Tên SEO", value: product.seoTitle },
+              { icon: "🔗", label: "Đường dẫn SEO", value: product.seoAlias },
+              { icon: "📐", label: "Kích thước", value: product.size },
+            ].map((item, index) => (
+              <div className="spec-item-card" key={index}>
+                <span className="spec-label">
+                  {item.icon} {item.label}:
                 </span>
-              </li>
-              <li className="spec-item">
-                <span className="spec-label">Đóng gói:</span>
                 <span className="spec-value">
-                  {product.packaging || "Đang cập nhật"}
+                  {item.value || "Đang cập nhật"}
                 </span>
-              </li>
-              <li className="spec-item">
-                <span className="spec-label">Tên SEO:</span>
-                <span className="spec-value">
-                  {product.seoTitle || "Đang cập nhật"}
-                </span>
-              </li>
-              <li className="spec-item">
-                <span className="spec-label">Đường dẫn SEO:</span>
-                <span className="spec-value">
-                  {product.seoAlias || "Đang cập nhật"}
-                </span>
-              </li>
-              <li className="spec-item">
-                <span className="spec-label">Kích thước:</span>
-                <span className="spec-value">
-                  {product.size || "Đang cập nhật"}
-                </span>
-              </li>
-            </ul>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="mt-4">
-        <h3>Mô tả sản phẩm</h3>
-        <p>{product.description}</p>
+      <div className="product-description mt-4 p-4 bg-white rounded-3 shadow-sm">
+        <h3 className="fw-bold mb-3 border-bottom pb-2">📝 Mô tả sản phẩm</h3>
+        <div className="description-content">
+          {product.description || (
+            <p className="text-muted fst-italic">Không có mô tả sản phẩm.</p>
+          )}
+        </div>
       </div>
+
       {showSizeChart && (
         <div className="modal-backdrop-custom">
           <div className="modal-content-custom">
@@ -657,147 +651,69 @@ const ProductDetail = ({ addToCart }) => {
               <h5 className="modal-title">Bảng Quy Đổi Kích Cỡ</h5>
               <button
                 type="button"
-                className="btn-close"
+                className="btn btn-outline-danger btn-sm close-btn-custom"
                 onClick={() => setShowSizeChart(false)}
-              ></button>
+                title="Đóng"
+              >
+                ×
+              </button>
             </div>
             <div className="modal-body">
-              <p className="small text-muted">
-                Bảng quy đổi kích cỡ này được cung cấp bởi người bán và có thể
-                lệch 1-2cm so với thực tế.
+              <p className="small text-muted mb-4 fst-italic">
+                Bảng quy đổi kích cỡ được cung cấp bởi người bán, có thể lệch
+                1–2cm so với thực tế.
               </p>
 
-              <table className="table table-bordered text-center">
-                <thead className="table-light">
-                  <tr>
-                    <th>Size (Quốc tế)</th>
-                    <th>Chiều rộng (cm)</th>
-                    <th>Chiều dài áo (cm)</th>
-                    <th>Chiều dài tay áo (cm)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>M</td>
-                    <td>51</td>
-                    <td>67</td>
-                    <td>23</td>
-                  </tr>
-                  <tr>
-                    <td>L</td>
-                    <td>53</td>
-                    <td>70</td>
-                    <td>23</td>
-                  </tr>
-                  <tr>
-                    <td>XL</td>
-                    <td>56</td>
-                    <td>73</td>
-                    <td>23</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="virtual-tryon-section p-4 my-5 bg-light rounded shadow-sm">
-        <h4 className="mb-3 fw-bold">🧥 Thử Đồ Ảo</h4>
-
-        <div className="row g-4">
-          {/* Upload ảnh người dùng */}
-          <div className="col-md-6">
-            <label className="form-label fw-semibold">
-              1️⃣ Tải ảnh chân dung:
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              className="form-control mb-2"
-              onChange={handleImageUpload}
-            />
-            {previewImage && (
-              <img
-                src={previewImage}
-                alt="Ảnh bạn đã tải"
-                className="img-fluid rounded border"
-                style={{ maxHeight: "300px", objectFit: "cover" }}
-              />
-            )}
-          </div>
-
-          {/* Nút thử đồ và ảnh kết quả */}
-          <div className="col-md-6 d-flex flex-column justify-content-between">
-            <div>
-              <label className="form-label fw-semibold mb-2">
-                2️⃣ Nhấn nút bên dưới để thử đồ:
-              </label>
-              <button
-                className="btn btn-outline-primary w-100 mb-3"
-                onClick={handleVirtualTryOn}
-              >
-                🚀 Thử Ngay
-              </button>
-            </div>
-
-            {virtualTryOnImage && (
-              <div>
-                <label className="form-label fw-semibold">3️⃣ Kết quả:</label>
-                <img
-                  src={virtualTryOnImage}
-                  alt="Kết quả thử đồ"
-                  className="img-fluid rounded border"
-                  style={{ maxHeight: "300px", objectFit: "contain" }}
-                />
+              <div className="table-responsive">
+                <table className="table table-hover table-bordered text-center align-middle shadow-sm rounded size-chart-table">
+                  <thead className="table-dark">
+                    <tr>
+                      <th>Size (Quốc tế)</th>
+                      <th>Chiều rộng (cm)</th>
+                      <th>Chiều dài áo (cm)</th>
+                      <th>Chiều dài tay áo (cm)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <strong>M</strong>
+                      </td>
+                      <td>51</td>
+                      <td>67</td>
+                      <td>23</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>L</strong>
+                      </td>
+                      <td>53</td>
+                      <td>70</td>
+                      <td>23</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>XL</strong>
+                      </td>
+                      <td>56</td>
+                      <td>73</td>
+                      <td>23</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
-        </div>
-      </div>
-      {virtualTryOnImage && (
-        <div className="result-tryon-container mt-5 p-4 bg-white rounded shadow-sm border">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h5 className="fw-bold text-success mb-0">
-              ✅ Kết quả thử đồ ảo của bạn
-            </h5>
-            <div className="d-flex gap-2">
-              <a
-                href={virtualTryOnImage}
-                download="virtual-tryon-result.jpg"
-                className="btn btn-outline-secondary btn-sm"
-              >
-                ⬇️ Tải ảnh
-              </a>
-              <button
-                className="btn btn-outline-info btn-sm"
-                onClick={() => window.open(virtualTryOnImage, "_blank")}
-              >
-                🔍 Xem lớn
-              </button>
             </div>
-          </div>
-          <div className="text-center">
-            <img
-              src={virtualTryOnImage}
-              alt="Ảnh kết quả thử đồ"
-              className="img-fluid rounded shadow-sm border"
-              style={{
-                maxHeight: "500px",
-                objectFit: "contain",
-                border: "2px solid #ccc",
-              }}
-            />
           </div>
         </div>
       )}
-
-      <div className="mt-4">
-        <h3>Đánh giá sản phẩm</h3>
+      <div className="product-review-section mt-5 p-4 bg-white rounded-3 shadow-sm">
+        <h3 className="product-section-title mb-4">⭐ Đánh giá sản phẩm</h3>
 
         <div className="mb-4">
-          <label className="fw-bold">🌟 Đánh giá của bạn:</label>
-          <div className="d-flex align-items-center gap-1 mt-1">
+          <label className="fw-bold fs-5 text-primary">
+            🌟 Đánh giá của bạn:
+          </label>
+          <div className="d-flex align-items-center gap-1 mt-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <motion.span
                 key={star}
@@ -816,7 +732,9 @@ const ProductDetail = ({ addToCart }) => {
               </motion.span>
             ))}
             {rating > 0 && (
-              <span className="ms-2 text-success fw-medium">{rating} sao</span>
+              <span className="ms-2 text-success fw-medium fs-6">
+                {rating} sao
+              </span>
             )}
           </div>
         </div>
@@ -916,25 +834,99 @@ const ProductDetail = ({ addToCart }) => {
           🚀 Gửi đánh giá
         </button>
       </div>
-      <div className="mt-5">
-        <h4>Bình luận sản phẩm</h4>
+      {showTryOnModal && (
+        <div className="modal-backdrop-custom">
+          <div className="modal-content-custom">
+            <div className="modal-header d-flex justify-content-between align-items-center">
+              <h5 className="modal-title">🧥 Thử Đồ Ảo</h5>
+              <button
+                type="button"
+                className="btn btn-outline-danger btn-sm"
+                onClick={() => setShowTryOnModal(false)}
+                title="Đóng"
+                style={{
+                  fontSize: "20px",
+                  borderRadius: "50%",
+                  width: "32px",
+                  height: "32px",
+                  lineHeight: "1",
+                  padding: "0",
+                  textAlign: "center",
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label className="form-label fw-semibold">
+                  Tải ảnh chân dung:
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="form-control"
+                  onChange={handleImageUpload}
+                />
+              </div>
 
-        <div
-          style={{
-            maxHeight: "400px",
-            overflowY: "auto",
-            paddingRight: "10px",
-            backgroundColor: "#f8f9fa",
-            borderRadius: "8px",
-            border: "1px solid #dee2e6",
-          }}
-        >
+              {previewImage && (
+                <div className="mb-3 text-center">
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    className="img-fluid rounded"
+                    style={{ maxHeight: "300px", objectFit: "contain" }}
+                  />
+                </div>
+              )}
+
+              <button
+                className="btn btn-primary w-100"
+                onClick={handleVirtualTryOn}
+              >
+                🚀 Bắt đầu thử đồ
+              </button>
+
+              {virtualTryOnImage && (
+                <div className="mt-4 text-center">
+                  <h6 className="fw-bold text-success mb-3">
+                    ✅ Kết quả thử đồ
+                  </h6>
+                  <img
+                    src={virtualTryOnImage}
+                    alt="Kết quả"
+                    className="img-fluid rounded shadow-sm border"
+                    style={{ maxHeight: "400px", objectFit: "contain" }}
+                  />
+                  <div className="d-flex justify-content-center mt-2 gap-2">
+                    <a
+                      href={virtualTryOnImage}
+                      download="tryon-result.jpg"
+                      className="btn btn-outline-secondary btn-sm"
+                    >
+                      ⬇️ Tải ảnh
+                    </a>
+                    <button
+                      className="btn btn-outline-info btn-sm"
+                      onClick={() => window.open(virtualTryOnImage, "_blank")}
+                    >
+                      🔍 Xem lớn
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-5">
+        <h3 className="product-section-title mb-4">💬 Bình luận sản phẩm</h3>
+        <div className="product-comments-container">
           {reviews.slice(0, visibleReviews).map((review, index) => (
-            <div
-              key={index}
-              className="p-3 mb-3 bg-white rounded shadow-sm border"
-            >
-              <div className="d-flex align-items-center mb-2">
+            <div key={index} className="product-comment-card">
+              <div className="d-flex align-items-start mb-3">
                 <img
                   src={
                     review.customerDTO?.avatarImagePath ||
@@ -943,14 +935,13 @@ const ProductDetail = ({ addToCart }) => {
                     }`
                   }
                   alt="avatar"
-                  className="rounded-circle me-2"
-                  style={{ width: "40px", height: "40px" }}
+                  className="avatar me-3"
                 />
                 <div>
-                  <div className="fw-semibold">
+                  <div className="user-info">
                     {review.customerDTO?.fullName || "Người dùng"}
                   </div>
-                  <div className="d-flex align-items-center gap-1">
+                  <div className="d-flex align-items-center rating-stars gap-1">
                     {[...Array(5)].map((_, i) => (
                       <FaStar
                         key={i}
@@ -962,24 +953,24 @@ const ProductDetail = ({ addToCart }) => {
                   <small className="text-muted">
                     {review.customerDTO?.email}
                   </small>
-                  <br />
                   {review.orderItems?.[0]?.quantity && (
-                    <small className="text-muted">
-                      🛒 <strong>{review.orderItems[0].quantity}</strong> sản
-                      phẩm đã mua
-                    </small>
+                    <div>
+                      <small className="text-muted">
+                        🛒 <strong>{review.orderItems[0].quantity}</strong> sản
+                        phẩm đã mua
+                      </small>
+                    </div>
                   )}
                 </div>
               </div>
 
-              <p className="mb-1">{review.comment}</p>
+              <p className="comment-text">{review.comment}</p>
 
               {review.imageUrl && (
                 <img
                   src={review.imageUrl}
                   alt="Ảnh đánh giá"
-                  className="img-fluid rounded mt-2"
-                  style={{ maxHeight: "200px", objectFit: "contain" }}
+                  className="img-fluid comment-media"
                 />
               )}
 
@@ -987,8 +978,7 @@ const ProductDetail = ({ addToCart }) => {
                 <video
                   src={review.videoUrl}
                   controls
-                  className="w-100 rounded mt-2"
-                  style={{ maxHeight: "300px" }}
+                  className="w-100 comment-media"
                 />
               )}
             </div>

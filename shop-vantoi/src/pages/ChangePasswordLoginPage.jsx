@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import { motion } from "framer-motion";
 
 const ChangePasswordLoginPage = () => {
   const [email, setEmail] = useState("");
@@ -93,7 +94,20 @@ const ChangePasswordLoginPage = () => {
 
   return (
     <div className="container py-5" style={{ maxWidth: "500px" }}>
-      <h3 className="text-center mb-4">Đổi mật khẩu</h3>
+      <motion.h1
+        className="product-name-title mb-3"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        whileHover={{
+          scale: 1.05,
+          textShadow: "0px 2px 10px rgba(0, 0, 0, 0.2)",
+        }}
+      >
+        <center>
+          <p>ĐỔI MẬT KHẨU</p>
+        </center>
+      </motion.h1>
 
       <div className="mb-3">
         <label className="form-label">Email</label>
