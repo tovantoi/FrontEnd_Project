@@ -19,6 +19,7 @@ const ProductEditPage = () => {
     packaging: "",
     origin: "",
     manufacturer: "",
+    stockQuantity: "",
     imageMimeType: "",
     imagePath: "",
     seoTitle: "",
@@ -426,6 +427,20 @@ const ProductEditPage = () => {
             name="manufacturer"
             value={product.manufacturer}
             onChange={handleChange}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="stockQuantity" className="form-label">
+            Số lượng tồn kho
+          </label>
+          <input
+            type="number"
+            className="form-control"
+            id="stockQuantity"
+            name="stockQuantity"
+            value={product.stockQuantity}
+            onChange={handleChange}
+            required
           />
         </div>
 

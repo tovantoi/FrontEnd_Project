@@ -147,6 +147,7 @@ const AddProduct = () => {
             packaging: "",
             origin: "",
             manufacturer: "",
+            stockQuantity: "",
             imageData: "",
             seoTitle: "",
             seoAlias: "",
@@ -340,6 +341,16 @@ const AddProduct = () => {
             type="text"
             name="manufacturer"
             value={formData.manufacturer}
+            onChange={handleInputChange}
+            className="form-control"
+          />
+        </div>
+        <div className="col-md-6">
+          <label className="form-label">Số lượng tồn kho</label>
+          <input
+            type="number"
+            name="stockQuantity"
+            value={formData.stockQuantity}
             onChange={handleInputChange}
             className="form-control"
           />

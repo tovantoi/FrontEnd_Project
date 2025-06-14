@@ -8,6 +8,7 @@ const AddProductImage = () => {
   const navigate = useNavigate();
   const [extraImages, setExtraImages] = useState([]);
   const [color, setColor] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("");
 
   const handleExtraImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -41,8 +42,9 @@ const AddProductImage = () => {
           body: JSON.stringify({
             productId: parseInt(productId),
             imageUrl: image.imageData,
-            color: "default",
+            color: color,
             sortOrder: index + 1,
+            stockQuantity: parseInt(stockQuantity) || 0,
           }),
         }
       );
@@ -74,6 +76,19 @@ const AddProductImage = () => {
             required
           />
         </div>
+        <div className="mb-3">
+          <label className="form-label">Số lượng tồn kho</label>
+          <input
+            type="number"
+            className="form-control"
+            placeholder="Nhập số lượng tồn kho cho màu này"
+            value={stockQuantity}
+            onChange={(e) => setStockQuantity(e.target.value)}
+            min="0"
+            required
+          />
+        </div>
+
         <div className="mb-3">
           <label className="form-label">Ảnh phụ (có thể chọn nhiều):</label>
           <input

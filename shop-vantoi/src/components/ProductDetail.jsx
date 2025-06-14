@@ -25,6 +25,11 @@ const ProductDetail = ({ addToCart }) => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [showTryOnModal, setShowTryOnModal] = useState(false);
+  const [userHeight, setUserHeight] = useState("");
+  const [userWeight, setUserWeight] = useState("");
+  const [userGender, setUserGender] = useState("male");
+  const [recommendedSize, setRecommendedSize] = useState(null);
+  const [hoveredImage, setHoveredImage] = useState(null);
 
   const sizeOptions = [
     { label: "M (Dưới 46Kg)" },
@@ -112,6 +117,15 @@ const ProductDetail = ({ addToCart }) => {
       return;
     }
 
+    if (!userHeight || !userWeight || !userGender) {
+      Swal.fire(
+        "Thiếu thông tin",
+        "Vui lòng nhập chiều cao, cân nặng và giới tính.",
+        "warning"
+      );
+      return;
+    }
+
     try {
       Swal.fire({
         title: "Đang xử lý thử đồ...",
@@ -122,10 +136,10 @@ const ProductDetail = ({ addToCart }) => {
           Swal.showLoading();
         },
       });
+
       const formData = new FormData();
       formData.append("person", userImage);
 
-      // 🧥 Tải ảnh áo từ URL của sản phẩm
       const clothRes = await fetch(product.imagePath);
       if (!clothRes.ok) throw new Error("Không thể tải ảnh quần áo từ URL");
 
@@ -136,7 +150,6 @@ const ProductDetail = ({ addToCart }) => {
 
       formData.append("cloth", clothBlob, "cloth.jpg");
 
-      // 📡 Gửi form đến Flask API
       const apiRes = await fetch("http://localhost:5000/tryon", {
         method: "POST",
         body: formData,
@@ -148,14 +161,45 @@ const ProductDetail = ({ addToCart }) => {
       }
 
       const result = await apiRes.json();
-      console.log("✅ URL ảnh kết quả:", result.result_url);
-
       if (!result.result_url) {
         throw new Error("Không nhận được ảnh kết quả từ server");
       }
 
-      // 🖼️ Cập nhật state ảnh kết quả
+      // 🖼️ Gán ảnh kết quả
       setVirtualTryOnImage(result.result_url);
+
+      // 🧠 Gọi API đề xuất size
+      try {
+        const sizeRes = await fetch(
+          "https://localhost:7022/minimal/api/recommend-size",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              height: parseInt(userHeight),
+              weight: parseInt(userWeight),
+              gender: userGender.toLowerCase(),
+            }),
+          }
+        );
+
+        const sizeData = await sizeRes.json();
+        if (sizeRes.ok && sizeData?.query?.recommendedSize) {
+          setRecommendedSize(sizeData.query);
+        } else {
+          setRecommendedSize({
+            recommendedSize: "Không xác định",
+            note: sizeData?.message || "Không thể đề xuất size.",
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi đề xuất size:", err);
+        setRecommendedSize({
+          recommendedSize: "Không xác định",
+          note: err.message || "Không thể kết nối API size.",
+        });
+      }
+
       Swal.fire("Thành công!", "Thử đồ ảo thành công!", "success");
     } catch (error) {
       console.error("Lỗi thử đồ:", error);
@@ -322,7 +366,11 @@ const ProductDetail = ({ addToCart }) => {
         {/* Hình ảnh sản phẩm */}
         <div className="col-md-6">
           <motion.img
-            src={product.imagePath || "https://via.placeholder.com/400"}
+            src={
+              hoveredImage ||
+              product.imagePath ||
+              "https://via.placeholder.com/400"
+            }
             alt={product.productName}
             className="img-fluid rounded shadow-sm"
             whileHover={{ scale: 1.05 }}
@@ -421,8 +469,10 @@ const ProductDetail = ({ addToCart }) => {
                         ? "border border-primary"
                         : ""
                     }`}
+                    onMouseEnter={() => setHoveredImage(item.imageUrl)}
+                    onMouseLeave={() => setHoveredImage(null)}
                     onClick={() => {
-                      setSelectedColor(item.color); // ✅ Chọn màu
+                      setSelectedColor(item.color);
                       setProduct((prev) => ({
                         ...prev,
                         imagePath: item.imageUrl,
@@ -435,6 +485,7 @@ const ProductDetail = ({ addToCart }) => {
                       width: "60px",
                       textAlign: "center",
                       fontSize: "12px",
+                      transition: "transform 0.2s",
                     }}
                   >
                     <img
@@ -445,9 +496,12 @@ const ProductDetail = ({ addToCart }) => {
                         height: "60px",
                         objectFit: "cover",
                         border: "1px solid #ccc",
+                        transition: "0.3s",
                       }}
                     />
-                    <div className="text-muted small">{item.color}</div>
+                    <div className="text-muted small">
+                      {item.color || `Màu ${index + 1}`}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -481,8 +535,6 @@ const ProductDetail = ({ addToCart }) => {
               </button>
             </div>
           </div>
-
-          {/* Số lượng */}
           <div className="mb-4 d-flex align-items-center gap-3">
             <h6 className="mb-0 fw-bold">Số Lượng:</h6>
             <div className="d-flex align-items-center">
@@ -490,7 +542,7 @@ const ProductDetail = ({ addToCart }) => {
                 className="btn btn-light border"
                 onClick={() => setQuantity(Math.max(quantity - 1, 1))}
               >
-                -
+                −
               </button>
               <input
                 type="number"
@@ -502,24 +554,55 @@ const ProductDetail = ({ addToCart }) => {
                   border: "1px solid #ddd",
                   margin: "0 5px",
                   borderRadius: "4px",
+                  fontWeight: "bold",
+                  fontSize: "16px",
                 }}
               />
               <button
                 className="btn btn-light border"
-                onClick={() => setQuantity(quantity + 1)}
+                onClick={() =>
+                  setQuantity((prev) =>
+                    Math.min(prev + 1, product.stockQuantity || 1)
+                  )
+                }
               >
                 +
               </button>
             </div>
-            <div className="small text-muted">1842846 sản phẩm có sẵn</div>
+
+            <div
+              className={`fw-bold px-3 py-1 rounded ${
+                product.stockQuantity === 0
+                  ? "text-danger"
+                  : product.stockQuantity <= 5
+                  ? "text-warning"
+                  : "text-success"
+              }`}
+              style={{
+                fontSize: "16px",
+                backgroundColor:
+                  product.stockQuantity === 0
+                    ? "#f8d7da"
+                    : product.stockQuantity <= 5
+                    ? "#fff3cd"
+                    : "#d1e7dd",
+                border: "1px solid #ced4da",
+              }}
+            >
+              {product.stockQuantity === 0
+                ? "Hết hàng"
+                : `${product.stockQuantity} sản phẩm có sẵn`}
+            </div>
           </div>
 
           {/* Nút hành động */}
           <div className="d-flex gap-3">
             <motion.button
               className="btn btn-outline-danger flex-fill"
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: product.stockQuantity > 0 ? 1.05 : 1 }}
               onClick={() => {
+                if (product.stockQuantity <= 0) return;
+
                 const imageToUse = product.productImages?.find(
                   (img) => img.imageUrl === product.imagePath
                 );
@@ -534,10 +617,6 @@ const ProductDetail = ({ addToCart }) => {
                   return;
                 }
 
-                const selectedImage = product.productImages?.find(
-                  (img) => img.imageUrl === product.imagePath
-                );
-
                 addToCart({
                   ...product,
                   quantity,
@@ -547,29 +626,37 @@ const ProductDetail = ({ addToCart }) => {
 
                 Swal.fire("Đã thêm vào giỏ hàng", "", "success");
               }}
+              disabled={product.stockQuantity <= 0}
+              style={{
+                opacity: product.stockQuantity <= 0 ? 0.5 : 1,
+                cursor: product.stockQuantity <= 0 ? "not-allowed" : "pointer",
+              }}
+              title={
+                product.stockQuantity <= 0
+                  ? "Sản phẩm đã hết hàng"
+                  : "Thêm vào giỏ hàng"
+              }
             >
               🛒 Thêm vào giỏ hàng
             </motion.button>
+
             <motion.button
               className="btn btn-secondary flex-fill"
               whileHover={{ scale: 1.05 }}
-              onClick={() => setShowTryOnModal(true)} // Mở khung nổi
+              onClick={() => setShowTryOnModal(true)}
             >
               🧥 Thử đồ
             </motion.button>
+
             <motion.button
               className="btn btn-danger flex-fill"
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: product.stockQuantity > 0 ? 1.05 : 1 }}
               onClick={() => {
-                // if (selectedColor === null || selectedSize === null) {
-                //   Swal.fire("Bạn chưa chọn màu/size", "", "warning");
-                //   return;
-                // }
+                if (product.stockQuantity <= 0) return;
 
                 const productToBuyNow = {
                   ...product,
                   quantity,
-                  // selectedColor: colorOptions[selectedColor]?.label,
                   selectedSize: sizeOptions[selectedSize]?.label,
                 };
 
@@ -580,6 +667,14 @@ const ProductDetail = ({ addToCart }) => {
 
                 navigate("/checkout");
               }}
+              disabled={product.stockQuantity <= 0}
+              style={{
+                opacity: product.stockQuantity <= 0 ? 0.5 : 1,
+                cursor: product.stockQuantity <= 0 ? "not-allowed" : "pointer",
+              }}
+              title={
+                product.stockQuantity <= 0 ? "Sản phẩm đã hết hàng" : "Mua ngay"
+              }
             >
               Mua Ngay
             </motion.button>
@@ -869,7 +964,39 @@ const ProductDetail = ({ addToCart }) => {
                   onChange={handleImageUpload}
                 />
               </div>
-
+              <div className="row g-2 mt-3">
+                <div className="col-md-6">
+                  <label className="input-label-custom">Chiều cao (cm):</label>
+                  <input
+                    type="number"
+                    className="input-box-custom"
+                    value={userHeight}
+                    onChange={(e) => setUserHeight(e.target.value)}
+                    placeholder="VD: 168"
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label className="input-label-custom">Cân nặng (kg):</label>
+                  <input
+                    type="number"
+                    className="input-box-custom"
+                    value={userWeight}
+                    onChange={(e) => setUserWeight(e.target.value)}
+                    placeholder="VD: 58"
+                  />
+                </div>
+                <div className="col-12 mt-2">
+                  <label className="input-label-custom">Giới tính:</label>
+                  <select
+                    className="select-box-custom"
+                    value={userGender}
+                    onChange={(e) => setUserGender(e.target.value)}
+                  >
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                  </select>
+                </div>
+              </div>
               {previewImage && (
                 <div className="mb-3 text-center">
                   <img
@@ -899,6 +1026,16 @@ const ProductDetail = ({ addToCart }) => {
                     className="img-fluid rounded shadow-sm border"
                     style={{ maxHeight: "400px", objectFit: "contain" }}
                   />
+                  {/* ✅ Chỉ hiển thị nếu có recommendedSize */}
+                  {recommendedSize && (
+                    <div className="size-recommendation-box">
+                      <h5>
+                        📏 Size phù hợp:{" "}
+                        <strong>{recommendedSize.recommendedSize}</strong>
+                      </h5>
+                      <p>{recommendedSize.note}</p>
+                    </div>
+                  )}
                   <div className="d-flex justify-content-center mt-2 gap-2">
                     <a
                       href={virtualTryOnImage}
