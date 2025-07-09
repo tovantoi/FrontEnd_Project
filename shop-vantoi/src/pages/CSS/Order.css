@@ -24,3 +24,6 @@
   overflow-y: auto;
   padding-right: 10px;
 }
+.btn-sm {
+  border-radius: 20px;
+}

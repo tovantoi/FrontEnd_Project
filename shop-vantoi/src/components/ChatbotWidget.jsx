@@ -9,7 +9,8 @@ const ChatbotWidget = () => {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef();
-
+  const user = JSON.parse(localStorage.getItem("user")); // hoặc lấy từ context nếu có
+  const userId = user?.id;
   const toggleChat = () => {
     setIsOpen((prev) => {
       if (!prev && messages.length === 0) {
@@ -44,6 +45,11 @@ const ChatbotWidget = () => {
     const formData = new FormData();
     formData.append("message", userInput);
     if (imageFile) formData.append("image", imageFile);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const user_id = user?.id;
+    if (user_id) {
+      formData.append("user_id", user_id);
+    }
 
     try {
       const res = await fetch("http://localhost:5050/api/chat", {

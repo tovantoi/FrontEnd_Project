@@ -10,6 +10,7 @@ const ProductList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize] = useState(8);
   const [productRatings, setProductRatings] = useState({});
+  const [sortOption, setSortOption] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,10 +72,31 @@ const ProductList = () => {
     if (count >= 1000) return (count / 1000).toFixed(1) + "k";
     return count;
   };
+  const sortedProducts = [...products];
+
+  if (sortOption === "priceAsc") {
+    sortedProducts.sort(
+      (a, b) =>
+        (a.discountPrice || a.regularPrice) -
+        (b.discountPrice || b.regularPrice)
+    );
+  } else if (sortOption === "priceDesc") {
+    sortedProducts.sort(
+      (a, b) =>
+        (b.discountPrice || b.regularPrice) -
+        (a.discountPrice || a.regularPrice)
+    );
+  } else if (sortOption === "ratingDesc") {
+    sortedProducts.sort((a, b) => {
+      const ratingA = productRatings[a.id]?.averageRating || 0;
+      const ratingB = productRatings[b.id]?.averageRating || 0;
+      return ratingB - ratingA;
+    });
+  }
 
   return (
     <div className="product-list container py-5">
-      <motion.h1
+      {/* <motion.h1
         className="product-name-title mb-3"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -87,13 +109,33 @@ const ProductList = () => {
         <center>
           <p>DANH SÁCH SẢN PHẨM</p>
         </center>
-      </motion.h1>
+      </motion.h1> */}
+
+      {/* ✅ Đặt phần lọc ở ngoài h1 */}
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h4 className="fw-bold mb-0 text-primary">🛍️ Tất cả sản phẩm</h4>
+
+        <div className="d-flex align-items-center gap-2">
+          <select
+            id="sort"
+            className="form-select form-select-sm shadow-sm border-primary"
+            style={{ minWidth: "180px" }}
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+          >
+            <option value="">-- Mặc định --</option>
+            <option value="priceAsc">🔥 Giá: Thấp đến Cao</option>
+            <option value="priceDesc">💎 Giá: Cao đến Thấp</option>
+            <option value="ratingDesc">⭐ Số sao: Cao đến Thấp</option>
+          </select>
+        </div>
+      </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
       <div className="row g-4">
         {products.length > 0 ? (
-          products.map((product, index) => (
+          sortedProducts.map((product, index) => (
             <motion.div
               className="col-6 col-md-3"
               key={product.id}

@@ -9,6 +9,7 @@ const OrderManagementPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +30,20 @@ const OrderManagementPage = () => {
 
         const data = await response.json();
         setOrders(data);
+        const justPaidOrderId = localStorage.getItem("justPaidOrderId");
+        if (justPaidOrderId) {
+          const updatedOrder = data.find(
+            (o) => o.id === parseInt(justPaidOrderId)
+          );
+          if (updatedOrder && updatedOrder.status === 1) {
+            Swal.fire(
+              "✅ Đã thanh toán!",
+              "Đơn hàng đã cập nhật trạng thái.",
+              "success"
+            );
+            localStorage.removeItem("justPaidOrderId");
+          }
+        }
       } catch (err) {
         setError(err.message || "Có lỗi xảy ra khi tải danh sách đơn hàng.");
       } finally {
@@ -261,6 +276,10 @@ const OrderManagementPage = () => {
         return "Không xác định";
     }
   };
+  const filteredOrders =
+    filterStatus === "all"
+      ? orders
+      : orders.filter((o) => o.status.toString() === filterStatus);
 
   if (loading) {
     return (
@@ -334,6 +353,28 @@ const OrderManagementPage = () => {
               <p>ĐƠN HÀNG CỦA BẠN</p>
             </center>
           </motion.h1>
+          <div className="mb-4 d-flex justify-content-between flex-wrap gap-3 border-bottom pb-2">
+            {[
+              { key: "all", label: "Tất cả" },
+              { key: "0", label: "🕐 Chờ xác nhận" },
+              { key: "1", label: "📦 Đã xác nhận" },
+              { key: "2", label: "🚚 Đang giao hàng" },
+              { key: "3", label: "✅ Đã giao hàng" },
+              { key: "4", label: "❌ Đã hủy" },
+            ].map((item) => (
+              <button
+                key={item.key}
+                className={`btn btn-sm px-3 fw-semibold ${
+                  filterStatus === item.key
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setFilterStatus(item.key)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
 
           {/* Danh sách đơn hàng cuộn */}
           <div className="overflow-auto flex-grow-1 order-list-container">
@@ -342,7 +383,7 @@ const OrderManagementPage = () => {
                 Bạn chưa có đơn hàng nào.
               </div>
             ) : (
-              orders.map((order) => (
+              filteredOrders.map((order) => (
                 <motion.div
                   className="order-card p-3 mb-4 shadow-sm rounded"
                   key={order.id}

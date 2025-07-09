@@ -367,11 +367,11 @@ const CheckoutPage = ({ cart, setCart }) => {
               amount: totalPrice,
               description: "Thanh toán đơn hàng",
               returnUrl:
-                "https://6d25-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/payment-success",
+                "https://af02-2402-800-634f-e124-c869-1722-f5fb-19.ngrok-free.app/payment-success",
               cancelUrl:
-                "https://6d25-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/payment-cancel",
+                "https://af02-2402-800-634f-e124-c869-1722-f5fb-19.ngrok-free.app/payment-cancel",
               webhookUrl:
-                "https://eed9-2402-800-634f-8599-3dd5-34d9-3cb4-5f9e.ngrok-free.app/api/payos/ipn",
+                "https://76f8-2402-800-634f-e124-c869-1722-f5fb-19.ngrok-free.app/api/payos/ipn",
               buyerName:
                 formData.fullName ||
                 user.fullName ||
@@ -402,6 +402,7 @@ const CheckoutPage = ({ cart, setCart }) => {
           throw new Error("Không nhận được link thanh toán PayOS.");
         }
         console.log("🧾 orderItems gửi lên BE", orderItems);
+        localStorage.setItem("justPaidOrderId", createdOrderId);
 
         window.location.href = payosData.checkoutUrl;
         return;
