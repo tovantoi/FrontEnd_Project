@@ -13,12 +13,17 @@ const OrderManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null); // Trạng thái để kiểm soát dropdown
+  const [filterStatus, setFilterStatus] = useState("all");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
   }, []);
+  const filteredOrders =
+    filterStatus === "all"
+      ? orders
+      : orders.filter((o) => o.status.toString() === filterStatus);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -428,6 +433,60 @@ const OrderManagement = () => {
           <div className="text-center">Đang tải...</div>
         ) : (
           <motion.div className="table-responsive">
+            <div className="mb-4 d-flex justify-content-center">
+              <ul className="nav nav-pills flex-wrap gap-2 justify-content-center">
+                {[
+                  { label: "Tất cả", value: "all", icon: "bi-list" },
+                  {
+                    label: "Chờ xác nhận",
+                    value: "0",
+                    icon: "bi-hourglass-split",
+                    color: "warning",
+                  },
+                  {
+                    label: "Đã xác nhận",
+                    value: "1",
+                    icon: "bi-patch-check",
+                    color: "primary",
+                  },
+                  {
+                    label: "Đang giao hàng",
+                    value: "2",
+                    icon: "bi-truck",
+                    color: "info",
+                  },
+                  {
+                    label: "Đã giao hàng",
+                    value: "3",
+                    icon: "bi-box-seam",
+                    color: "success",
+                  },
+                  {
+                    label: "Đã hủy",
+                    value: "4",
+                    icon: "bi-x-circle",
+                    color: "danger",
+                  },
+                ].map((status) => {
+                  const isActive = filterStatus === status.value;
+                  return (
+                    <li className="nav-item" key={status.value}>
+                      <button
+                        className={`nav-link d-flex align-items-center gap-1 fw-semibold rounded-pill px-3 py-2 ${
+                          isActive
+                            ? `text-white bg-${status.color || "secondary"}`
+                            : "text-dark bg-light border"
+                        }`}
+                        onClick={() => setFilterStatus(status.value)}
+                      >
+                        <i className={`bi ${status.icon}`}></i> {status.label}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
             <motion.table className="table table-hover align-middle table-bordered">
               <thead className="table-dark">
                 <tr className="text-center">
@@ -440,8 +499,8 @@ const OrderManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.length > 0 ? (
-                  orders.map((order) => {
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => {
                     const { label, color } = getStatusLabel(order.status);
                     return (
                       <motion.tr key={order.id}>

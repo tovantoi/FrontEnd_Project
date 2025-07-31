@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import BlogPage from "./pages/BlogPage";
+import ZaloChatWidget from "./pages/ZaloChatWidget";
 import AutoReplyEmailPage from "./pages/AutoReplyEmailPage";
 import RegisterPage from "./pages/RegisterPage";
 import MyAccountPage from "./pages/MyAccountPage";
@@ -294,6 +295,7 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
         </Route>
       </Routes>
       {!isAdminRoute && !isNotFound && <Footer />}
+      {!isAdminRoute && !isNotFound && <ZaloChatWidget />}
       {visibleChatbotPaths.some((path) =>
         new RegExp(`^${path.replace(/:[^/]+/g, "[^/]+")}$`).test(
           location.pathname

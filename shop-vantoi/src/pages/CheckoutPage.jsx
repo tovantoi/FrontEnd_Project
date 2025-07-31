@@ -363,15 +363,13 @@ const CheckoutPage = ({ cart, setCart }) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              orderCode: createdOrderId.toString(),
               orderId: createdOrderId,
               amount: totalPrice,
               description: "Thanh toán đơn hàng",
-              returnUrl:
-                "https://af02-2402-800-634f-e124-c869-1722-f5fb-19.ngrok-free.app/payment-success",
-              cancelUrl:
-                "https://af02-2402-800-634f-e124-c869-1722-f5fb-19.ngrok-free.app/payment-cancel",
-              webhookUrl:
-                "https://76f8-2402-800-634f-e124-c869-1722-f5fb-19.ngrok-free.app/api/payos/ipn",
+              returnUrl: "https://7f66e3c36516.ngrok-free.app/payment-success",
+              cancelUrl: "https://7f66e3c36516.ngrok-free.app/payment-cancel",
+              webhookUrl: "https://8966ac7322e7.ngrok-free.app/api/payos/ipn",
               buyerName:
                 formData.fullName ||
                 user.fullName ||

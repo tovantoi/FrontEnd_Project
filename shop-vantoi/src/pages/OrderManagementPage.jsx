@@ -259,6 +259,10 @@ const OrderManagementPage = () => {
       );
     }
   };
+  const getOrderCountByStatus = (statusKey) => {
+    if (statusKey === "all") return orders.length;
+    return orders.filter((o) => o.status.toString() === statusKey).length;
+  };
 
   const getOrderStatusText = (status) => {
     switch (status) {
@@ -361,19 +365,30 @@ const OrderManagementPage = () => {
               { key: "2", label: "🚚 Đang giao hàng" },
               { key: "3", label: "✅ Đã giao hàng" },
               { key: "4", label: "❌ Đã hủy" },
-            ].map((item) => (
-              <button
-                key={item.key}
-                className={`btn btn-sm px-3 fw-semibold ${
-                  filterStatus === item.key
-                    ? "btn-primary"
-                    : "btn-outline-primary"
-                }`}
-                onClick={() => setFilterStatus(item.key)}
-              >
-                {item.label}
-              </button>
-            ))}
+            ].map((item) => {
+              const count = getOrderCountByStatus(item.key);
+              return (
+                <button
+                  key={item.key}
+                  className={`btn btn-sm position-relative px-3 fw-semibold ${
+                    filterStatus === item.key
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => setFilterStatus(item.key)}
+                >
+                  {item.label}
+                  {count > 0 && (
+                    <span
+                      className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                      style={{ fontSize: "0.6rem" }}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {/* Danh sách đơn hàng cuộn */}

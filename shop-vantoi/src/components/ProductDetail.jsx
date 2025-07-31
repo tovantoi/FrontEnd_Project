@@ -27,15 +27,39 @@ const ProductDetail = ({ addToCart }) => {
   const [showTryOnModal, setShowTryOnModal] = useState(false);
   const [userHeight, setUserHeight] = useState("");
   const [userWeight, setUserWeight] = useState("");
-  const [userGender, setUserGender] = useState("male");
+  const [userGender, setUserGender] = useState("nam");
   const [recommendedSize, setRecommendedSize] = useState(null);
   const [hoveredImage, setHoveredImage] = useState(null);
+  const [canReview, setCanReview] = useState(false);
+  const [reviewChecked, setReviewChecked] = useState(false);
 
   const sizeOptions = [
     { label: "M (Dưới 46Kg)" },
     { label: "L (46-65Kg)" },
     { label: "XL (65-75Kg)" },
   ];
+  useEffect(() => {
+    const fetchReviewEligibility = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || !productId) return;
+
+      try {
+        const response = await fetch(
+          `https://localhost:7022/api/ProductReview/check-product-review?userId=${user.id}&productId=${productId}`
+        );
+        const data = await response.json();
+        if (response.ok) {
+          setCanReview(data.canReview);
+        }
+      } catch (err) {
+        console.error("Lỗi kiểm tra quyền đánh giá:", err);
+      } finally {
+        setReviewChecked(true);
+      }
+    };
+
+    fetchReviewEligibility();
+  }, [productId]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -61,6 +85,7 @@ const ProductDetail = ({ addToCart }) => {
         Swal.close();
       }
     };
+
     const fetchReviews = async () => {
       try {
         const response = await fetch(
@@ -249,7 +274,7 @@ const ProductDetail = ({ addToCart }) => {
 
   const handleReviewSubmit = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const userId = user?.userID || user?.id; // Dùng đúng key thực tế
+    const userId = user?.userID || user?.id;
 
     if (!userId) {
       await Swal.fire({
@@ -261,17 +286,19 @@ const ProductDetail = ({ addToCart }) => {
       return;
     }
 
+    // Tách ảnh và video base64 từ danh sách media
     let imageBase64 = null;
     let videoBase64 = null;
 
     mediaBase64List.forEach((media) => {
-      if (media.mimeType.startsWith("image/")) {
+      if (media.mimeType?.startsWith("image/")) {
         imageBase64 = media.base64;
-      } else if (media.mimeType.startsWith("video/")) {
+      } else if (media.mimeType?.startsWith("video/")) {
         videoBase64 = media.base64;
       }
     });
 
+    // Chuẩn bị payload gửi lên BE
     const requestBody = {
       productId,
       userId,
@@ -302,15 +329,17 @@ const ProductDetail = ({ addToCart }) => {
           confirmButtonText: "OK",
         });
 
+        // Reset form sau khi gửi thành công
         setRating(0);
         setComment("");
         setPreviewFiles([]);
         setMediaBase64List([]);
+        setCanReview(false); // Ngăn gửi lại đánh giá
       } else {
         await Swal.fire({
           title: "Không thể gửi đánh giá",
           text:
-            data?.message || "Bạn chưa mua sản phẩm này hoặc đã có lỗi xảy ra.",
+            data?.message || "Bạn chưa mua sản phẩm này hoặc đã đánh giá rồi.",
           icon: "error",
           confirmButtonText: "OK",
         });
@@ -324,6 +353,7 @@ const ProductDetail = ({ addToCart }) => {
       });
     }
   };
+
   const uniqueColors = [
     ...new Map(
       (product.productImages || []).map((img) => [img.color, img])
@@ -376,10 +406,14 @@ const ProductDetail = ({ addToCart }) => {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.4 }}
             style={{
-              width: "100%",
-              height: "400px",
-              objectFit: "cover",
+              maxWidth: "100%",
+              maxHeight: "500px",
+              width: "auto",
+              height: "auto",
+              objectFit: "contain", // ✅ Giữ nguyên tỉ lệ ảnh, không bị vỡ hay crop
               border: "2px solid #eee",
+              display: "block",
+              margin: "0 auto",
             }}
           />
 
@@ -925,6 +959,14 @@ const ProductDetail = ({ addToCart }) => {
         <button
           className="btn btn-success w-100 mt-3"
           onClick={handleReviewSubmit}
+          disabled={!reviewChecked || !canReview}
+          title={
+            !reviewChecked
+              ? "Đang kiểm tra quyền đánh giá..."
+              : canReview
+              ? "Bạn có thể gửi đánh giá"
+              : "Bạn cần mua sản phẩm và chưa đánh giá trước đó"
+          }
         >
           🚀 Gửi đánh giá
         </button>
@@ -992,8 +1034,8 @@ const ProductDetail = ({ addToCart }) => {
                     value={userGender}
                     onChange={(e) => setUserGender(e.target.value)}
                   >
-                    <option value="male">Nam</option>
-                    <option value="female">Nữ</option>
+                    <option value="nam">Nam</option>
+                    <option value="nữ">Nữ</option>
                   </select>
                 </div>
               </div>

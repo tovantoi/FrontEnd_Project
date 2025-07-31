@@ -56,11 +56,21 @@
 .product-card:hover .product-hover-overlay {
   opacity: 1;
 }
-.container-custom {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 0 1rem;
+.container-shopee {
+  max-width: 1280px; /* Giống layout Shopee */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
 }
+
+@media (max-width: 768px) {
+  .container-shopee {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
 .category-card {
   border: none;
   transition: all 0.3s;
