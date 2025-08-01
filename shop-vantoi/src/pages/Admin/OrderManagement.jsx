@@ -7,6 +7,7 @@ import autoTable from "jspdf-autotable";
 import { robotoBase64 } from "../../components/RobotoFont";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import "../AdminCss/Orders.css";
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
@@ -19,12 +20,22 @@ const OrderManagement = () => {
 
   useEffect(() => {
     fetchOrders();
+    // eslint-disable-next-line
   }, []);
+
+  // ------------- Đếm số lượng đơn theo trạng thái -------------
+  const getOrderCountByStatus = (statusKey) => {
+    if (statusKey === "all") return orders.length;
+    return orders.filter((o) => o.status.toString() === statusKey).length;
+  };
+
+  // ------------- Lọc đơn theo trạng thái -------------
   const filteredOrders =
     filterStatus === "all"
       ? orders
       : orders.filter((o) => o.status.toString() === filterStatus);
 
+  // ------------- Lấy danh sách đơn và tự động huỷ đơn quá hạn -------------
   const fetchOrders = async () => {
     setLoading(true);
     setError("");
@@ -33,8 +44,40 @@ const OrderManagement = () => {
         "https://localhost:7022/minimal/api/get-orders"
       );
       if (!response.ok) throw new Error("Không thể lấy danh sách đơn hàng.");
-      const data = await response.json();
-      setOrders(data || []); // Đảm bảo orders luôn là mảng
+      let data = await response.json();
+      data = data || [];
+
+      // Tìm đơn chờ xác nhận quá 3 ngày
+      const now = new Date();
+      const expiredOrders = data.filter(
+        (o) =>
+          o.status === 0 &&
+          o.createdAt &&
+          (now - new Date(o.createdAt)) / (1000 * 60 * 60 * 24) > 3
+      );
+
+      // Nếu có đơn hết hạn -> update status
+      for (let expiredOrder of expiredOrders) {
+        await fetch(
+          `https://localhost:7022/minimal/api/change-status-order?id=${expiredOrder.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: 4 }), // Đã huỷ
+          }
+        );
+      }
+
+      // Reload lại danh sách nếu có đơn hết hạn
+      if (expiredOrders.length > 0) {
+        const newResponse = await fetch(
+          "https://localhost:7022/minimal/api/get-orders"
+        );
+        data = await newResponse.json();
+      }
+      setOrders(data || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -433,58 +476,55 @@ const OrderManagement = () => {
           <div className="text-center">Đang tải...</div>
         ) : (
           <motion.div className="table-responsive">
-            <div className="mb-4 d-flex justify-content-center">
-              <ul className="nav nav-pills flex-wrap gap-2 justify-content-center">
-                {[
-                  { label: "Tất cả", value: "all", icon: "bi-list" },
-                  {
-                    label: "Chờ xác nhận",
-                    value: "0",
-                    icon: "bi-hourglass-split",
-                    color: "warning",
-                  },
-                  {
-                    label: "Đã xác nhận",
-                    value: "1",
-                    icon: "bi-patch-check",
-                    color: "primary",
-                  },
-                  {
-                    label: "Đang giao hàng",
-                    value: "2",
-                    icon: "bi-truck",
-                    color: "info",
-                  },
-                  {
-                    label: "Đã giao hàng",
-                    value: "3",
-                    icon: "bi-box-seam",
-                    color: "success",
-                  },
-                  {
-                    label: "Đã hủy",
-                    value: "4",
-                    icon: "bi-x-circle",
-                    color: "danger",
-                  },
-                ].map((status) => {
-                  const isActive = filterStatus === status.value;
-                  return (
-                    <li className="nav-item" key={status.value}>
-                      <button
-                        className={`nav-link d-flex align-items-center gap-1 fw-semibold rounded-pill px-3 py-2 ${
-                          isActive
-                            ? `text-white bg-${status.color || "secondary"}`
-                            : "text-dark bg-light border"
-                        }`}
-                        onClick={() => setFilterStatus(status.value)}
-                      >
-                        <i className={`bi ${status.icon}`}></i> {status.label}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+            <div className="order-status-menu">
+              {[
+                { label: "Tất cả", value: "all", icon: "bi-list" },
+                {
+                  label: "Chờ xác nhận",
+                  value: "0",
+                  icon: "bi-hourglass-split",
+                  color: "warning",
+                },
+                {
+                  label: "Đã xác nhận",
+                  value: "1",
+                  icon: "bi-patch-check",
+                  color: "primary",
+                },
+                {
+                  label: "Đang giao hàng",
+                  value: "2",
+                  icon: "bi-truck",
+                  color: "info",
+                },
+                {
+                  label: "Đã giao hàng",
+                  value: "3",
+                  icon: "bi-box-seam",
+                  color: "success",
+                },
+                {
+                  label: "Đã hủy",
+                  value: "4",
+                  icon: "bi-x-circle",
+                  color: "danger",
+                },
+              ].map((status) => {
+                const isActive = filterStatus === status.value;
+                const count = getOrderCountByStatus(status.value);
+                return (
+                  <button
+                    key={status.value}
+                    className={`status-btn${isActive ? " active" : ""}`}
+                    data-color={status.color || ""}
+                    onClick={() => setFilterStatus(status.value)}
+                  >
+                    <i className={`bi ${status.icon}`}></i>
+                    {status.label}
+                    {count > 0 && <span className="status-badge">{count}</span>}
+                  </button>
+                );
+              })}
             </div>
 
             <motion.table className="table table-hover align-middle table-bordered">

@@ -29,7 +29,22 @@ const OrderManagementPage = () => {
         if (!response.ok) throw new Error("Không thể tải đơn hàng.");
 
         const data = await response.json();
-        setOrders(data);
+
+        // 👉 Thêm kiểm tra đơn quá hạn
+        const needReload = await autoCancelExpiredOrders(data);
+
+        // Nếu có cập nhật trạng thái, reload lại danh sách
+        if (needReload) {
+          const reloadRes = await fetch(
+            `https://localhost:7022/minimal/api/get-order-by-customer-id?id=${user.id}`
+          );
+          const reloadData = await reloadRes.json();
+          setOrders(reloadData);
+        } else {
+          setOrders(data);
+        }
+
+        // Xử lý justPaidOrderId như cũ...
         const justPaidOrderId = localStorage.getItem("justPaidOrderId");
         if (justPaidOrderId) {
           const updatedOrder = data.find(
@@ -263,7 +278,34 @@ const OrderManagementPage = () => {
     if (statusKey === "all") return orders.length;
     return orders.filter((o) => o.status.toString() === statusKey).length;
   };
+  // Hàm kiểm tra và cập nhật trạng thái đơn quá hạn
+  const autoCancelExpiredOrders = async (orders) => {
+    const now = new Date();
+    const expiredOrders = orders.filter(
+      (order) =>
+        order.status === 0 &&
+        order.createdAt &&
+        (now - new Date(order.createdAt)) / (1000 * 60 * 60 * 24) > 3
+    );
 
+    for (const expiredOrder of expiredOrders) {
+      // Gọi API cập nhật trạng thái sang Đã huỷ (status: 4)
+      await fetch(
+        `https://localhost:7022/minimal/api/change-status-order?id=${expiredOrder.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: 4 }),
+        }
+      );
+    }
+
+    // Nếu có đơn hết hạn, reload lại danh sách
+    if (expiredOrders.length > 0) {
+      return true; // báo hiệu cần reload
+    }
+    return false;
+  };
   const getOrderStatusText = (status) => {
     switch (status) {
       case 0:

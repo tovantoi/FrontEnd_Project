@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Line, Bar, Doughnut } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 import { motion } from "framer-motion";
 import {
   Chart as ChartJS,
@@ -14,7 +14,10 @@ import {
   Legend,
 } from "chart.js";
 import "../AdminCss/Dashboard.css";
+import InventoryTable from "./InventoryTable";
 
+// Trong component Dashboard của bạn
+<InventoryTable />;
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -27,14 +30,21 @@ ChartJS.register(
   Legend
 );
 
-const Dashboard = () => {
-  const getRandomColor = () => {
-    const colors = ["#ff6ec7", "#ff9000", "#00ff90", "#0090ff", "#ff00d8"];
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
+// Modern palette
+const palette = [
+  "#3b82f6", // blue
+  "#f59e42", // orange
+  "#22c55e", // green
+  "#e11d48", // red
+  "#8b5cf6", // purple
+  "#06b6d4", // cyan
+  "#fbbf24", // yellow
+];
 
-  const [color, setColor] = useState(getRandomColor());
-  const [highlight, setHighlight] = useState(false);
+const Dashboard = () => {
+  const getRandomColor = () =>
+    palette[Math.floor(Math.random() * palette.length)];
+
   const [summary, setSummary] = useState({});
   const [topProducts, setTopProducts] = useState([]);
   const [categoryRevenue, setCategoryRevenue] = useState([]);
@@ -47,7 +57,6 @@ const Dashboard = () => {
   const isCustomDateMode = fromDate !== "" && toDate !== "";
 
   useEffect(() => {
-    setInterval(() => setColor(getRandomColor()), 5000);
     fetch("https://localhost:7022/minimal/api/get-sales-summary")
       .then((res) => res.json())
       .then(setSummary);
@@ -71,13 +80,9 @@ const Dashboard = () => {
       ? `https://localhost:7022/minimal/api/get-revenue-time?from=${fromDate}&to=${toDate}`
       : `https://localhost:7022/minimal/api/get-revenue-day-week-month?mode=${revenueMode}`;
 
-    console.log("📡 Fetching from:", url);
-
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        console.log("📊 API response:", data);
-
         setRevenueTimeline(data);
         setRevenueNewCustomers(
           data.map((i) => ({
@@ -85,54 +90,39 @@ const Dashboard = () => {
             value: i.totalRevenueFromNewCustomers || 0,
           }))
         );
-      })
-      .catch((err) => {
-        console.error("❌ Fetch error:", err);
       });
   }, [revenueMode, fromDate, toDate]);
 
   const revenueTimelineChart = {
-    labels: revenueTimeline.map((i, idx) => {
-      if (i.label.toLowerCase().includes("hiện tại")) {
-        return new Date().toLocaleDateString("vi-VN"); // hoặc bạn format theo yyyy-MM-dd
-      }
-      return i.label;
-    }),
-
+    labels: revenueTimeline.map((i) => i.label),
     datasets: [
       {
         label: isCustomDateMode
           ? "Tổng doanh thu (Tuỳ chọn)"
           : `Tổng doanh thu (${revenueMode})`,
         data: revenueTimeline.map((i) => i.totalRevenue / 1000),
-        borderColor: "#36A2EB",
-        backgroundColor: "rgba(54,162,235,0.3)",
+        borderColor: "#3b82f6",
+        backgroundColor: "rgba(59, 130, 246, 0.15)",
         tension: 0.4,
+        pointRadius: 4,
         fill: true,
       },
     ],
   };
 
   const revenueNewCustomerChart = {
-    labels: revenueNewCustomers.map((i, idx) => {
-      if (i.label.toLowerCase().includes("hiện tại")) {
-        return new Date().toLocaleDateString("vi-VN");
-      }
-      return i.label;
-    }),
-
+    labels: revenueNewCustomers.map((i) => i.label),
     datasets: [
       {
         label: isCustomDateMode
           ? "Doanh thu KH mới (Tuỳ chọn)"
           : `Doanh thu KH mới (${revenueMode})`,
         data: revenueNewCustomers.map((i) => i.value / 1000),
-        borderColor: "#FF8C00",
-        backgroundColor: "rgba(255,140,0,0.3)",
+        borderColor: "#f59e42",
+        backgroundColor: "rgba(245, 158, 66, 0.13)",
         tension: 0.4,
+        pointRadius: 4,
         fill: true,
-        pointRadius: 3,
-        pointBackgroundColor: "#FF8C00",
       },
     ],
   };
@@ -143,7 +133,10 @@ const Dashboard = () => {
       {
         label: "Doanh thu (nghìn VNĐ)",
         data: topProducts.map((p) => p.totalRevenue / 1000),
-        backgroundColor: topProducts.map(() => getRandomColor()),
+        backgroundColor: topProducts.map(
+          (_, idx) => palette[idx % palette.length]
+        ),
+        borderRadius: 5,
       },
     ],
   };
@@ -154,37 +147,10 @@ const Dashboard = () => {
       {
         label: "Doanh thu (nghìn VNĐ)",
         data: categoryRevenue.map((c) => c.totalRevenue / 1000),
-        backgroundColor: categoryRevenue.map(() => getRandomColor()),
-      },
-    ],
-  };
-
-  const doughnutChartData = {
-    labels: ["Marketing", "Bán hàng"],
-    datasets: [
-      {
-        label: "Chi phí (%)",
-        data: [75, 25],
-        backgroundColor: ["#FF6384", "#36A2EB"],
-        hoverOffset: 4,
-      },
-    ],
-  };
-
-  const barChartData = {
-    labels: ["Email", "GDN", "Instagram", "Facebook", "Twitter", "Google Ads"],
-    datasets: [
-      {
-        label: "Doanh thu theo kênh (ngàn đồng)",
-        data: [10, 15, 12, 8, 7, 18],
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4CAF50",
-          "#F7464A",
-          "#949FB1",
-        ],
+        backgroundColor: categoryRevenue.map(
+          (_, idx) => palette[idx % palette.length]
+        ),
+        borderRadius: 5,
       },
     ],
   };
@@ -192,40 +158,36 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <motion.h1
-        className="product-name-title mb-3"
+        className="dashboard-title"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        whileHover={{
-          scale: 1.05,
-          textShadow: "0px 2px 10px rgba(0, 0, 0, 0.2)",
-        }}
       >
-        <center>
-          <p>THỐNG KÊ DOANH THU</p>
-        </center>
+        THỐNG KÊ DOANH THU
       </motion.h1>
 
       <div className="info-grid">
-        <motion.div className="info-card">
+        <motion.div className="info-card" whileHover={{ scale: 1.03 }}>
           <div className="label">Sản phẩm đã bán</div>
-          <div className="value">{summary.totalProductsSold}</div>
+          <div className="value blue">{summary.totalProductsSold || 0}</div>
         </motion.div>
-        <motion.div className="info-card">
+        <motion.div className="info-card" whileHover={{ scale: 1.03 }}>
           <div className="label">Doanh thu KH mới</div>
-          <div className="value">
-            {summary.totalRevenueFromNewCustomers?.toLocaleString()} VNĐ
+          <div className="value orange">
+            {summary.totalRevenueFromNewCustomers?.toLocaleString() || 0} VNĐ
           </div>
         </motion.div>
-        <motion.div className="info-card">
+        <motion.div className="info-card" whileHover={{ scale: 1.03 }}>
           <div className="label">Chi phí</div>
-          <div className="value">
-            {summary.estimatedCost?.toLocaleString()} VNĐ
+          <div className="value green">
+            {summary.estimatedCost?.toLocaleString() || 0} VNĐ
           </div>
         </motion.div>
-        <motion.div className="info-card">
+        <motion.div className="info-card" whileHover={{ scale: 1.03 }}>
           <div className="label">Lợi nhuận</div>
-          <div className="value">{summary.profit?.toLocaleString()} VNĐ</div>
+          <div className="value purple">
+            {summary.profit?.toLocaleString() || 0} VNĐ
+          </div>
         </motion.div>
       </div>
 
@@ -260,39 +222,26 @@ const Dashboard = () => {
         />
 
         {isCustomDateMode && (
-          <span
-            style={{ marginLeft: "10px", color: "#888", fontStyle: "italic" }}
-          >
+          <span className="custom-date-notice">
             📆 Đang xem theo thời gian tự chọn
           </span>
         )}
       </div>
 
       <div className="chart-xl-wrapper">
-        <motion.div className="chart-xl">
-          <h3>Doanh thu theo thời gian</h3>
+        <motion.div className="chart-xl" whileHover={{ scale: 1.01 }}>
+          <div className="chart-title">Doanh thu theo thời gian</div>
           <Line
             data={revenueTimelineChart}
             options={{
               responsive: true,
               maintainAspectRatio: false,
-              spanGaps: true,
               plugins: {
                 legend: { position: "top" },
                 tooltip: { enabled: true },
               },
               scales: {
-                x: {
-                  ticks: {
-                    autoSkip: false,
-                    maxRotation: 45,
-                    minRotation: 0,
-                  },
-                  title: {
-                    display: true,
-                    text: "Thời gian",
-                  },
-                },
+                x: { title: { display: true, text: "Thời gian" } },
                 y: {
                   beginAtZero: true,
                   min: 0,
@@ -300,48 +249,29 @@ const Dashboard = () => {
                     Math.max(
                       ...revenueTimeline.map((i) => i.totalRevenue / 1000)
                     ) + 10 || 100,
-                  title: {
-                    display: true,
-                    text: "Doanh thu (ngàn VNĐ)",
-                  },
+                  title: { display: true, text: "Doanh thu (ngàn VNĐ)" },
                 },
               },
               elements: {
-                point: {
-                  radius: 10, // 👈 hiển thị rõ hơn khi chỉ có 1 điểm
-                },
-                line: {
-                  tension: 0.4,
-                  borderWidth: 3, // 👈 tăng độ dày đường
-                },
+                point: { radius: 6 },
+                line: { borderWidth: 3 },
               },
             }}
           />
         </motion.div>
-
-        <motion.div className="chart-xl">
-          <h3>Doanh thu từ KH mới</h3>
+        <motion.div className="chart-xl" whileHover={{ scale: 1.01 }}>
+          <div className="chart-title">Doanh thu từ KH mới</div>
           <Line
             data={revenueNewCustomerChart}
             options={{
               responsive: true,
               maintainAspectRatio: false,
-              spanGaps: true,
               plugins: {
                 legend: { position: "top" },
                 tooltip: { enabled: true },
               },
               scales: {
-                x: {
-                  ticks: {
-                    autoSkip: false,
-                    maxRotation: 45,
-                  },
-                  title: {
-                    display: true,
-                    text: "Thời gian",
-                  },
-                },
+                x: { title: { display: true, text: "Thời gian" } },
                 y: {
                   beginAtZero: true,
                   min: 0,
@@ -349,31 +279,43 @@ const Dashboard = () => {
                     Math.max(
                       ...revenueNewCustomers.map((i) => i.value / 1000)
                     ) + 10,
-                  title: {
-                    display: true,
-                    text: "Doanh thu (ngàn VNĐ)",
-                  },
+                  title: { display: true, text: "Doanh thu (ngàn VNĐ)" },
                 },
               },
-              elements: {
-                point: {
-                  radius: 6,
-                  backgroundColor: "#FF8C00",
-                },
-              },
+              elements: { point: { radius: 6 } },
             }}
           />
         </motion.div>
       </div>
 
       <div className="grid-container">
-        <motion.div className="chart">
-          <h3>Top sản phẩm bán chạy</h3>
-          <Bar data={topProductChartData} />
+        <motion.div className="chart" whileHover={{ scale: 1.01 }}>
+          <div className="chart-title">Top sản phẩm bán chạy</div>
+          <Bar
+            data={topProductChartData}
+            options={{
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { color: "#f3f4f6" } },
+              },
+            }}
+          />
         </motion.div>
-        <motion.div className="chart">
-          <h3>Doanh thu theo danh mục</h3>
-          <Bar data={categoryRevenueChartData} />
+        <motion.div className="chart" whileHover={{ scale: 1.01 }}>
+          <div className="chart-title">Doanh thu theo danh mục</div>
+          <Bar
+            data={categoryRevenueChartData}
+            options={{
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { color: "#f3f4f6" } },
+              },
+            }}
+          />
         </motion.div>
       </div>
     </div>

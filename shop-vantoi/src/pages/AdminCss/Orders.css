@@ -1,0 +1,108 @@
+.order-status-menu {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  overflow-x: visible;
+  padding-bottom: 6px;
+  margin-bottom: 18px;
+  align-items: center;
+  background: #fff;
+  border-radius: 18px;
+}
+
+.order-status-menu .status-btn {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  padding: 0.32em 1.7em 0.32em 1.15em; /* tăng padding phải cho badge */
+  border-radius: 2em;
+  font-weight: 600;
+  border: 2.5px solid #ededed;
+  background: #fff;
+  color: #212121;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.02);
+  min-width: 0;
+  max-width: 185px;
+  margin-right: 0;
+  gap: 9px;
+  position: relative;
+  transition: background 0.15s, border 0.15s, color 0.15s;
+}
+
+.order-status-menu .status-btn.active {
+  border: 2.5px solid #ff6b81;
+  color: #ff6b81;
+  background: #fff;
+}
+
+.order-status-menu .status-btn[data-color="warning"].active {
+  border: 2.5px solid #ffe066;
+  color: #b68900;
+}
+.order-status-menu .status-btn[data-color="primary"].active {
+  border: 2.5px solid #2563eb;
+  color: #2563eb;
+}
+.order-status-menu .status-btn[data-color="info"].active {
+  border: 2.5px solid #099;
+  color: #099;
+}
+.order-status-menu .status-btn[data-color="success"].active {
+  border: 2.5px solid #0a7f27;
+  color: #0a7f27;
+}
+.order-status-menu .status-btn[data-color="danger"].active {
+  border: 2.5px solid #ff6b81;
+  color: #ff6b81;
+}
+
+.order-status-menu .status-badge {
+  font-size: 0.85rem;
+  margin-left: 7px;
+  font-weight: 700;
+  border-radius: 1em;
+  background: #eee;
+  padding: 2px 12px 2px 12px;
+  color: #222;
+  min-width: 28px;
+  display: inline-block;
+  text-align: center;
+  line-height: 1.14;
+  position: static; /* luôn static để không bị che */
+}
+
+/* Badge màu từng trạng thái */
+.order-status-menu .status-btn[data-color="warning"] .status-badge {
+  background: #ffe066;
+  color: #b68900;
+}
+.order-status-menu .status-btn[data-color="primary"] .status-badge {
+  background: #d0e2ff;
+  color: #2563eb;
+}
+.order-status-menu .status-btn[data-color="info"] .status-badge {
+  background: #b2f0ff;
+  color: #099;
+}
+.order-status-menu .status-btn[data-color="success"] .status-badge {
+  background: #d0ffd0;
+  color: #0a7f27;
+}
+.order-status-menu .status-btn[data-color="danger"] .status-badge {
+  background: #ffd0d0;
+  color: #d92d2d;
+}
+
+@media (max-width: 1200px) {
+  .order-status-menu .status-btn {
+    font-size: 0.88rem;
+    padding: 0.22em 1.1em 0.22em 0.8em;
+    max-width: 120px;
+  }
+  .order-status-menu .status-badge {
+    font-size: 0.66rem;
+    padding: 1px 7px;
+    min-width: 14px;
+  }
+}

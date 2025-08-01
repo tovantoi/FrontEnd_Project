@@ -22,12 +22,14 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import ProductDetail from "./components/ProductDetail";
 import Phukien from "./components/Phukien";
 import Logout from "./components/Logout";
+import PaymentMethodSelect from "./components/PaymentMethodSelect";
 import CartPage from "./pages/CartPage";
 import ChangePasswordLoginPage from "./pages/ChangePasswordLoginPage";
 import Dashboard from "./pages/Admin/Dashboard";
 import ProductManagement from "./pages/Admin/ProductManagement";
 import AddProduct from "./pages/Admin/AddProduct";
 import CustomerManagement from "./pages/Admin/CustomerManagement";
+import InventoryTable from "./pages/Admin/InventoryTable";
 import CategoryManagement from "./pages/Admin/CategoryManagement";
 import AddProductImage from "./pages/Admin/AddProductImage";
 import CouponManagement from "./pages/Admin/CouponManagement";
@@ -100,6 +102,7 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
     "/phukien",
     "/search-results",
     "/checkout",
+    "/payment",
     "/product/:productId",
     "/cart",
     "/change-password",
@@ -202,6 +205,7 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/my-account" element={<MyAccountPage />} />
         <Route path="/products" element={<ProductPage />} />
+        <Route path="/payment" element={<PaymentMethodSelect />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/blogpage" element={<BlogPage />} />
         <Route path="/phukien" element={<Phukien />} />
@@ -250,6 +254,7 @@ const AppContent = ({ cart, setCart, emailForOtp, setEmailForOtp }) => {
         >
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/products" element={<ProductManagement />} />
+          <Route path="/admin/inventory" element={<InventoryTable />} />
           <Route path="/admin/add-product" element={<AddProduct />} />
           <Route
             path="/admin/products/:productId/add-images"

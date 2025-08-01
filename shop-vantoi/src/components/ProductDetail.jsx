@@ -34,9 +34,13 @@ const ProductDetail = ({ addToCart }) => {
   const [reviewChecked, setReviewChecked] = useState(false);
 
   const sizeOptions = [
-    { label: "M (Dưới 46Kg)" },
-    { label: "L (46-65Kg)" },
-    { label: "XL (65-75Kg)" },
+    { label: "XS" },
+    { label: "S" },
+    { label: "M" },
+    { label: "L" },
+    { label: "XL" },
+    { label: "XXL" },
+    { label: "3XL" }, // chỉ xét cho nam
   ];
   useEffect(() => {
     const fetchReviewEligibility = async () => {

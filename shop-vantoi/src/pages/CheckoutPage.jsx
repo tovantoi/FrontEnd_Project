@@ -6,6 +6,7 @@ import { useWindowSize } from "@react-hook/window-size";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import "./CSS/CheckoutPage.css";
+import PaymentMethodSelect from "../components/PaymentMethodSelect";
 import { useNavigate } from "react-router-dom";
 
 const CheckoutPage = ({ cart, setCart }) => {
@@ -631,6 +632,13 @@ const CheckoutPage = ({ cart, setCart }) => {
             </li>
           </ul>
           <h4 className="mt-3">3. Phương thức thanh toán</h4>
+          <PaymentMethodSelect
+            value={formData.paymentMethod}
+            onChange={(val) =>
+              setFormData((f) => ({ ...f, paymentMethod: val }))
+            }
+          />
+          {/* <h4 className="mt-3">3. Phương thức thanh toán</h4>
 
           <div className="mb-3">
             <input
@@ -663,7 +671,7 @@ const CheckoutPage = ({ cart, setCart }) => {
               onChange={handleInputChange}
             />
             <label className="ms-2">Thanh toán qua PayOS</label>
-          </div>
+          </div> */}
 
           {/* 🚀 Nút Đặt Hàng */}
           <motion.button
