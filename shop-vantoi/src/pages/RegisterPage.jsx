@@ -131,21 +131,19 @@ const RegisterPage = () => {
         >
           {/* BÊN TRÁI */}
           <div className="col-md-6 d-flex flex-column justify-content-center align-items-center p-4 text-white border-3d">
-            <h1
-              className="text-center mb-3"
+            <div
               style={{
-                fontSize: "2.4rem",
-                fontWeight: "900",
-                background: "linear-gradient(90deg, #ff6ec7, #42a5f5)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                textShadow: "0 0 15px rgba(255,255,255,0.2)",
-                letterSpacing: "2px",
-                textTransform: "uppercase",
+                position: "relative",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
               }}
             >
-              SHOP-VANTOI
-            </h1>
+              <div className="shop-vantoi-bg"></div>
+              <h1 className="shop-vantoi-title text-center mb-3">
+                SHOP VANTOI
+              </h1>
+            </div>
             <p
               className="mt-3 fw-bold text-center text-uppercase"
               style={{

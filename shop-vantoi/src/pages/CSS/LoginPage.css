@@ -1,66 +1,131 @@
 .login-background {
-  background: url("../../assets/7.gif") no-repeat center center fixed;
+  background: url("../../assets/132.jpg") no-repeat center center fixed;
   background-size: cover;
 }
 
 .login-container {
   max-width: 900px;
-  height: 550px;
+  width: 100%;
+  background: none;
+  border-radius: 24px;
+}
+
+.glassmorphism {
+  background: linear-gradient(
+    130deg,
+    rgba(10, 40, 120, 0.48) 0%,
+    rgba(255, 255, 255, 0.16) 100%
+  );
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  padding: 40px 32px;
+}
+
+.form-control {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 500;
+  border: none;
+  border-bottom: 2px solid #80d0ff;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
 }
 
 .form-control::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: #e9f5ff;
+  font-weight: 400;
+  opacity: 1;
+  font-size: 1.05rem;
 }
 
-input.form-control {
+.login-btn {
+  background: linear-gradient(90deg, #00f0ff 0%, #ff00e0 100%);
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.15rem;
+  padding: 14px 0;
+  border-radius: 12px;
   border: none;
-  border-bottom: 1px solid #ccc;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.13);
+  transition: background 0.25s;
 }
-.glassmorphism {
-  background-color: rgba(255, 255, 255, 0.05); /* Càng nhỏ càng trong */
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  height: 100%;
+
+.login-btn:hover {
+  background: linear-gradient(90deg, #42a5f5 0%, #ff6ec7 100%);
 }
-.login-container {
-  max-width: 900px;
-  width: 100%;
-  background-color: transparent;
-  border-radius: 20px;
-}
-.gradient-text {
-  background: linear-gradient(45deg, #00f0ff, #ff00e0);
+
+.glass-left h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #ff6ec7, #42a5f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-.border-3d {
-  background: transparent;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6),
-    /* Bóng tối */ -4px -4px 10px rgba(255, 255, 255, 0.1); /* Bóng sáng */
-  backdrop-filter: blur(0px); /* không làm mờ */
-  transition: all 0.3s ease-in-out;
-}
-.glass-left {
-  background-color: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-  border: none;
-}
-.glass-left h1 {
-  font-weight: 800;
-  font-size: 2.8rem;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3),
-    0 0 20px rgba(0, 255, 255, 0.4);
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.16);
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .glass-left p {
-  font-size: 1rem;
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: #ffe45c;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.24);
+  background: rgba(0, 0, 0, 0.44);
+  border-radius: 18px;
+  padding: 12px 24px;
+  margin-top: 16px;
+}
+
+.login-link {
+  color: #80d0ff;
+  text-decoration: underline;
   font-weight: 500;
-  color: #f8e45c;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+  font-size: 1rem;
+}
+
+.google-btn-custom {
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(80, 160, 255, 0.12);
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    max-width: 100%;
+  }
+  .glassmorphism,
+  .glass-left {
+    padding: 20px 6px;
+  }
+}
+.shop-vantoi-title {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #ff6ec7, #42a5f5, #ffe45c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 2px #fff;
+  text-shadow: 0 2px 16px #42a5f5, 0 4px 32px #ff6ec7, 0 0 8px #ffe45c,
+    0 0 36px rgba(0, 0, 0, 0.3);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+}
+
+/* Lớp nền mờ phía sau */
+.shop-vantoi-bg {
+  position: absolute;
+  left: 50%;
+  top: 15%;
+  transform: translate(-50%, 0);
+  width: 400px;
+  height: 100px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 24px;
+  filter: blur(8px);
+  z-index: 1;
 }

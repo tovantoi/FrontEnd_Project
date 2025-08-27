@@ -122,21 +122,19 @@ const LoginPage = () => {
         >
           {/* BÊN TRÁI - SHOP VANTOI */}
           <div className="col-md-6 d-flex flex-column justify-content-center align-items-center p-5 text-white border-3d">
-            <h1
-              className="text-center mb-3"
+            <div
               style={{
-                fontSize: "2.8rem",
-                fontWeight: "900",
-                background: "linear-gradient(90deg, #ff6ec7, #42a5f5)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                textShadow: "0 0 15px rgba(255, 255, 255, 0.2)",
-                letterSpacing: "2px",
-                textTransform: "uppercase",
+                position: "relative",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
               }}
             >
-              SHOP-VANTOI
-            </h1>
+              <div className="shop-vantoi-bg"></div>
+              <h1 className="shop-vantoi-title text-center mb-3">
+                SHOP VANTOI
+              </h1>
+            </div>
 
             <p
               className="mt-3 fw-bold text-center text-uppercase"
@@ -173,7 +171,7 @@ const LoginPage = () => {
                   "0 0 8px rgba(128, 208, 255, 0.4), 0 0 18px rgba(80, 160, 255, 0.4)",
               }}
             >
-              OFFICIAL LOGIN FORM
+              ĐĂNG NHẬP TÀI KHOẢN
             </h2>
 
             <form onSubmit={handleLogin}>
